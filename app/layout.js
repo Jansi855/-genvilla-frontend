@@ -1,9 +1,10 @@
 import './globals.css';
+import 'leaflet/dist/leaflet.css';
 import Providers from './providers';
 
 export const metadata = {
-  title: 'Your Home | Smart Real Estate Decisions',
-  description: 'Explore properties in Gurugram and Ghaziabad, calculate true costs, check affordability and get smarter property insights with Your Home.'
+  title: 'GenVilla | Smart Real Estate Decisions',
+  description: 'Explore properties in Gurugram, Ghaziabad, Sonipat, Noida and New Delhi, calculate true costs, check affordability and get smarter property insights with GenVilla.'
 };
 
 export default function RootLayout({ children }) {
