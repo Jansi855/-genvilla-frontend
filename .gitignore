@@ -2,3 +2,5 @@ node_modules
 .next
 .env*
 tmp
+# Video files
+*.mp4

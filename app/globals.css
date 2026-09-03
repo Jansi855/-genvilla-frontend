@@ -32,3 +32,57 @@ button, select { cursor: pointer; }
 .seller-grid{display:grid;overflow:hidden;border-radius:32px;background:#15352c}@media(min-width:900px){.seller-grid{grid-template-columns:1fr 1fr}}
 .calc-field span{display:block;margin-bottom:6px;color:rgba(19,32,29,.65);font-size:12px;font-weight:700}.calc-field input,.calc-field select{height:44px;width:100%;border:1px solid rgba(19,32,29,.15);border-radius:12px;background:#fff;padding:0 12px;outline:none}.calc-field input:focus,.calc-field select:focus{border-color:#155f4b}.calc-field small{color:#9c3428;font-size:11px}
 @media(max-width:640px){.search-panel{border-radius:20px;padding:16px}.section-title{font-size:2.65rem}.hero-title{line-height:1.08;letter-spacing:-.03em}.hero-title-line+.hero-title-line{margin-top:.12em}}
+/* =========================================================
+   PROPERTY CARD ENTRANCE ANIMATION
+========================================================= */
+
+@keyframes propertyCardReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(35px) scale(0.97);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.property-card-reveal {
+  opacity: 0;
+  animation: propertyCardReveal 0.7s ease-out forwards;
+}
+
+/* Respect accessibility settings */
+@media (prefers-reduced-motion: reduce) {
+  .property-card-reveal {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* Property card entrance animation */
+
+@keyframes propertyCardReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(35px) scale(0.97);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.property-card-reveal {
+  opacity: 0;
+  animation: propertyCardReveal 0.7s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .property-card-reveal {
+    opacity: 1;
+    animation: none;
+  }
+}
