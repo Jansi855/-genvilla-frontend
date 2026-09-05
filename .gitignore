@@ -4,3 +4,5 @@ node_modules
 tmp
 # Video files
 *.mp4
+
+infra/cdk.out/
