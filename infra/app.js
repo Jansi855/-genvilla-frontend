@@ -47,7 +47,7 @@ const role = new iam.Role(foundation, "DeployRole", {
       StringEquals: {
         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
         "token.actions.githubusercontent.com:sub":
-          "repo:genvilla-in/frontend:ref:refs/heads/prod",
+          "repo:genvilla-in@322783281/frontend@1352718693:ref:refs/heads/prod",
       },
     },
   ),
