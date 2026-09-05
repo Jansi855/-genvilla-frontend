@@ -1,4 +1,5 @@
 "use client";
+import { assetUrl } from "@/lib/assets";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -173,7 +174,7 @@ export default function Navbar() {
           "
         >
           <Image
-            src="/Genvilla-navbar (2).png"
+            src={assetUrl('/Genvilla-navbar (2).png')}
             alt="GenVilla - Find Analyze Own"
             width={600}
             height={180}

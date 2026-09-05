@@ -1,4 +1,5 @@
 "use client";
+import { assetUrl } from "@/lib/assets";
 
 import Link from "next/link";
 import {
@@ -22,14 +23,15 @@ export default function HeroSection() {
           BACKGROUND VIDEO
       ====================================================== */}
       <video
+        poster={assetUrl("/hero/property-lifestyle.png")}
         autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         className="absolute inset-0 h-full w-full object-cover"
       >
-        <source src="/hero/property-video.mp4" type="video/mp4" />
+        {process.env.NEXT_PUBLIC_PROPERTY_VIDEO_URL && <source src={process.env.NEXT_PUBLIC_PROPERTY_VIDEO_URL} type="video/mp4" />}
       </video>
 
       {/* =====================================================

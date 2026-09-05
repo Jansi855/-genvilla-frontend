@@ -1,4 +1,5 @@
 "use client";
+import { assetUrl } from "@/lib/assets";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -245,7 +246,7 @@ export default function HomePage() {
               {/* Property image */}
               <div className="group relative mt-10 overflow-hidden rounded-[28px] border border-ink/5 bg-white shadow-[0_15px_40px_rgba(20,50,40,0.08)]">
                 <img
-                  src="/hero/property-lifestyle.png"
+                  src={assetUrl('/hero/property-lifestyle.png')}
                   alt="Modern residential property"
                   className="h-[180px] w-full object-cover object-center opacity-75 transition-all duration-700 group-hover:scale-105 group-hover:opacity-90"
                 />
@@ -494,7 +495,7 @@ export default function HomePage() {
                 {
                   number: "01",
                   title: "FIND",
-                  image: "/how-it-works/find-property.jpg",
+                  image: assetUrl('/how-it-works/find-property.jpg'),
 
                   text: "Explore verified properties across your city and find the one that fits your needs.",
 
@@ -510,7 +511,7 @@ export default function HomePage() {
                 {
                   number: "02",
                   title: "COST",
-                  image: "/how-it-works/calculate-cost.jpeg",
+                  image: assetUrl('/how-it-works/calculate-cost.jpeg'),
 
                   text: "Calculate the true cost with all charges, taxes, and hidden costs included.",
 
@@ -526,7 +527,7 @@ export default function HomePage() {
                 {
                   number: "03",
                   title: "ANALYZE",
-                  image: "/how-it-works/analyze-property.jfif",
+                  image: assetUrl('/how-it-works/analyze-property.jfif'),
 
                   text: "Check affordability, ROI, and risk to understand if it’s the right move.",
 
@@ -542,7 +543,7 @@ export default function HomePage() {
                 {
                   number: "04",
                   title: "DECIDE",
-                  image: "/how-it-works/smart-decision.jfif",
+                  image: assetUrl('/how-it-works/smart-decision.jfif'),
 
                   text: "Get a smart recommendation — buy, wait, or avoid with confidence.",
 
@@ -993,7 +994,7 @@ export default function HomePage() {
                   {/* Image */}
                   <div className="relative h-[115px] w-full overflow-hidden rounded-[18px] sm:w-[145px]">
                     <img
-                      src="/hero/property-lifestyle.png"
+                      src={assetUrl('/hero/property-lifestyle.png')}
                       alt="Palm Grove Residence"
                       className="h-full w-full object-cover transition-all duration-700 group-hover:scale-110"
                     />
@@ -1205,7 +1206,7 @@ export default function HomePage() {
                 {/* Market Image */}
                 <div className="group/market relative hidden h-[230px] overflow-hidden rounded-[24px] lg:block">
                   <img
-                    src="/insights/market-insights.jpg"
+                    src={assetUrl('/insights/market-insights.jpg')}
                     alt="GenVilla real estate market insights"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover/market:scale-110"
                   />
@@ -1405,7 +1406,7 @@ export default function HomePage() {
                 {/* Government Benefits Image */}
                 <div className="group/government relative hidden h-[230px] overflow-hidden rounded-[24px] lg:block">
                   <img
-                    src="/insights/government-benefits.webp"
+                    src={assetUrl('/insights/government-benefits.webp')}
                     alt="Government housing benefits and schemes"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover/government:scale-110"
                   />
@@ -1606,7 +1607,7 @@ export default function HomePage() {
                   {/* Image */}
                   <div className="group relative overflow-hidden rounded-[26px]">
                     <img
-                      src="/insights/property-decision.jpg"
+                      src={assetUrl('/insights/property-decision.jpg')}
                       alt="Compare property buying, renting, selling and investing decisions"
                       className="h-[330px] w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.04] md:h-[380px]"
                     />
