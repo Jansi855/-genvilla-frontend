@@ -57,3 +57,10 @@ jobs:
         run: |
           curl --fail --retry 8 --retry-delay 10 --retry-all-errors https://genvilla.in/ -o /dev/null
           curl --fail --retry 8 --retry-delay 10 --retry-all-errors https://www.genvilla.in/ -o /dev/null
+          for domain in genvilla.in www.genvilla.in; do
+            for attempt in $(seq 1 30); do
+              if curl --fail --silent "https://$domain/api/health" | jq -e --arg release "$RELEASE_ID" '.service == "genvilla-frontend" and .release == $release'; then break; fi
+              if [ "$attempt" -eq 30 ]; then exit 1; fi
+              sleep 10
+            done
+          done

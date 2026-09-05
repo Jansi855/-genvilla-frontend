@@ -128,7 +128,12 @@ const container = task.addContainer("Web", {
     ecr.Repository.fromRepositoryName(prod, "Repository", "genvilla-frontend"),
     imageTag,
   ),
-  environment: { NODE_ENV: "production", PORT: "3000", HOSTNAME: "0.0.0.0" },
+  environment: {
+    NODE_ENV: "production",
+    PORT: "3000",
+    HOSTNAME: "0.0.0.0",
+    RELEASE_ID: imageTag,
+  },
   logging: ecs.LogDrivers.awsLogs({
     logGroup,
     streamPrefix: "web",
@@ -137,7 +142,7 @@ const container = task.addContainer("Web", {
   healthCheck: {
     command: [
       "CMD-SHELL",
-      `node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"`,
+      `node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"`,
     ],
     startPeriod: cdk.Duration.seconds(30),
   },
@@ -176,7 +181,7 @@ const target = new elb.ApplicationTargetGroup(prod, "Target", {
   targetType: elb.TargetType.IP,
   targets: [service],
   deregistrationDelay: cdk.Duration.seconds(30),
-  healthCheck: { path: "/", healthyHttpCodes: "200" },
+  healthCheck: { path: "/api/health", healthyHttpCodes: "200" },
 });
 const hostRule = new elb.CfnListenerRule(prod, "HostRule", {
   listenerArn,
