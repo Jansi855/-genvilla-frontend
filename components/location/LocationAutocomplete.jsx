@@ -42,7 +42,7 @@ export default function LocationAutocomplete({
 
   return <div className="relative">
     <label className="block">
-      <span className="mb-2 block text-xs font-bold text-ink/65">{label}</span>
+      <span className="mb-2 block text-xs font-bold text-ink">{label}</span>
       <span className="relative block">
         <Search className="pointer-events-none absolute left-3 top-3.5 text-ink/40" size={17}/>
         <input

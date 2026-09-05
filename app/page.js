@@ -1,5 +1,6 @@
 "use client";
 
+import HomePropertySearch from "@/components/HomePropertySearch";
 import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -18,14 +19,12 @@ export default function HomePage() {
   const [city, setCity] = useState(cities[0]);
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["home"],
-    queryFn: getHomeData,
-  });
+  queryKey: ["home", city],
+  queryFn: () => getHomeData(city),
+});
 
   const visible =
-    data?.featuredProperties
-      ?.filter((property) => property.city === city)
-      .slice(0, 3) || [];
+  data?.featuredProperties?.slice(0, 3) || [];
 
   return (
     <>
@@ -37,6 +36,8 @@ export default function HomePage() {
         ========================= */}
 
         <HeroSection />
+
+        <HomePropertySearch />
 
         {/* =========================
             EXPLORE PROPERTIES

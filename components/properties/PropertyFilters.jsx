@@ -1,12 +1,156 @@
-'use client';
-import { SlidersHorizontal, RotateCcw } from 'lucide-react';
-import { propertyTypes } from '@/data/properties';
-import LocationAutocomplete from '@/components/location/LocationAutocomplete';
+"use client";
 
-const selectClass='h-11 w-full rounded-xl border border-ink/15 bg-white px-3 text-sm text-ink outline-none focus:border-green';
-export default function PropertyFilters({filters,onChange,onClear,advancedOpen,setAdvancedOpen}) { const update=(key,value)=>onChange({...filters,[key]:value}); return <>
-  <div className="rounded-[24px] border border-ink/10 bg-white p-4 shadow-sm"><div className="flex flex-wrap gap-2 border-b border-ink/10 pb-4"><Mode label="Buy" active={filters.purpose==='Buy'} onClick={()=>update('purpose','Buy')}/><Mode label="Rent" active={filters.purpose==='Rent'} onClick={()=>update('purpose','Rent')}/><button onClick={onClear} className="ml-auto inline-flex items-center gap-2 px-3 text-sm font-bold text-ink/55 hover:text-green"><RotateCcw size={15}/> Clear all</button></div><div className="mt-4 grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-[1.8fr_1fr_1fr_1fr_auto]"><LocationAutocomplete label="Search location" value={filters.query?`${filters.query}${filters.city?`, ${filters.city}`:''}`:filters.city} onQueryChange={(query)=>onChange({...filters,query,city:''})} onSelect={(location)=>onChange({...filters,city:location.city,query:location.locality||''})}/><Select label="Property type" value={filters.type} onChange={(e)=>update('type',e.target.value)}><option value="">All Property Types</option>{propertyTypes.map((type)=><option key={type}>{type}</option>)}</Select><Select label="BHK" value={filters.bhk} onChange={(e)=>update('bhk',e.target.value)}><option value="">Any BHK</option>{['1 BHK','2 BHK','3 BHK','4 BHK','4+ BHK'].map((bhk)=><option key={bhk}>{bhk}</option>)}</Select><Select label="Budget" value={filters.budget} onChange={(e)=>update('budget',e.target.value)}><option value="">Any Budget</option><option value="under-1">Under ₹1 Cr</option><option value="1-2">₹1–2 Cr</option><option value="2-4">₹2–4 Cr</option><option value="4-6">₹4–6 Cr</option><option value="6-plus">₹6 Cr+</option></Select><button className="btn-outline !rounded-xl px-4" onClick={()=>setAdvancedOpen(!advancedOpen)} aria-expanded={advancedOpen}><SlidersHorizontal size={17}/><span className="hidden xl:inline">Filters</span></button></div></div>
-  {advancedOpen&&<div className="mt-3 rounded-[22px] border border-ink/10 bg-white p-5"><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Select label="Minimum area" value={filters.minArea} onChange={(e)=>update('minArea',e.target.value)}><option value="">Any area</option><option value="1000">1,000+ sq.ft.</option><option value="1500">1,500+ sq.ft.</option><option value="2000">2,000+ sq.ft.</option></Select><Select label="Risk level" value={filters.risk} onChange={(e)=>update('risk',e.target.value)}><option value="">Any risk level</option><option>Low Risk</option><option>Moderate Risk</option><option>High Risk</option></Select><Select label="Rental yield" value={filters.minRoi} onChange={(e)=>update('minRoi',e.target.value)}><option value="">Any yield</option><option value="3">3%+</option><option value="4">4%+</option></Select><Select label="Availability" value={filters.status} onChange={(e)=>update('status',e.target.value)}><option value="">Any availability</option><option>Ready to Move</option><option>Under Construction</option></Select></div><div className="mt-4 flex justify-end"><button className="btn-green" onClick={()=>setAdvancedOpen(false)}>Apply filters</button></div></div>}
- </> }
-function Mode({label,active,onClick}){return <button onClick={onClick} className={`rounded-full px-5 py-2 text-sm font-bold ${active?'bg-ink text-white':'bg-cream text-ink/60'}`}>{label}</button>}
-function Select({label,children,...props}){return <label><span className="sr-only">{label}</span><select aria-label={label} className={selectClass} {...props}>{children}</select></label>}
+import { Home, KeyRound, MapPin, Search, RotateCcw } from "lucide-react";
+
+import { propertyTypes } from "@/data/properties";
+import LocationAutocomplete from "@/components/location/LocationAutocomplete";
+
+const selectClass =
+  "h-12 w-full rounded-[14px] border border-ink/15 bg-white px-4 text-sm text-ink outline-none transition focus:border-green focus:ring-2 focus:ring-green/10";
+
+export default function PropertyFilters({ filters, onChange, onClear }) {
+  const update = (key, value) =>
+    onChange({
+      ...filters,
+      [key]: value,
+    });
+
+  return (
+    <div className="rounded-[28px] border border-ink/10 bg-white p-6 shadow-[0_18px_45px_rgba(18,55,43,0.08)]">
+      {/* TOP ROW */}
+      <div className="flex items-center justify-between border-b border-ink/10 pb-5">
+        <div className="flex gap-2">
+          <Mode
+            icon={Home}
+            label="Buy"
+            active={filters.purpose === "Buy"}
+            onClick={() => update("purpose", "Buy")}
+          />
+
+          <Mode
+            icon={KeyRound}
+            label="Rent"
+            active={filters.purpose === "Rent"}
+            onClick={() => update("purpose", "Rent")}
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={onClear}
+          className="flex items-center gap-2 text-sm font-semibold text-ink/45 transition hover:text-green"
+        >
+          <RotateCcw size={14} />
+          Clear all
+        </button>
+      </div>
+
+      {/* SEARCH ROW */}
+      <div className="mt-5 grid items-end gap-4 lg:grid-cols-[1.45fr_.95fr_.7fr_.9fr_auto]">
+        {/* LOCATION */}
+        <div>
+          <LocationAutocomplete
+            label="Location"
+            value={
+              filters.query
+                ? `${filters.query}${filters.city ? `, ${filters.city}` : ""}`
+                : filters.city
+            }
+            onQueryChange={(query) =>
+              onChange({
+                ...filters,
+                query,
+                city: "",
+              })
+            }
+            onSelect={(location) =>
+              onChange({
+                ...filters,
+                city: location.city,
+                query: location.locality || "",
+              })
+            }
+          />
+        </div>
+
+        {/* PROPERTY TYPE */}
+        <Select
+          label="Property Type"
+          value={filters.type}
+          onChange={(e) => update("type", e.target.value)}
+        >
+          <option value="">All Property Types</option>
+          {propertyTypes.map((type) => (
+            <option key={type}>{type}</option>
+          ))}
+        </Select>
+
+        {/* BHK */}
+        <Select
+          label="BHK"
+          value={filters.bhk}
+          onChange={(e) => update("bhk", e.target.value)}
+        >
+          <option value="">Any BHK</option>
+          <option>1 BHK</option>
+          <option>2 BHK</option>
+          <option>3 BHK</option>
+          <option>4 BHK</option>
+          <option>4+ BHK</option>
+        </Select>
+
+        {/* BUDGET */}
+        <Select
+          label="Budget"
+          value={filters.budget}
+          onChange={(e) => update("budget", e.target.value)}
+        >
+          <option value="">Any Budget</option>
+          <option value="under-1">Under ₹1 Cr</option>
+          <option value="1-2">₹1–2 Cr</option>
+          <option value="2-4">₹2–4 Cr</option>
+          <option value="4-6">₹4–6 Cr</option>
+          <option value="6-plus">₹6 Cr+</option>
+        </Select>
+
+        {/* SEARCH BUTTON */}
+        <button
+          type="button"
+          className="flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[#08785a] px-7 text-sm font-bold text-white shadow-[0_8px_20px_rgba(8,120,90,0.18)] transition hover:bg-[#066b50]"
+        >
+          <Search size={17} />
+          Search
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Mode({ icon: Icon, label, active, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold transition ${
+        active
+          ? "bg-[#0c2b23] text-white shadow-md"
+          : "bg-[#f3f0e8] text-ink/60"
+      }`}
+    >
+      <Icon size={15} />
+      {label}
+    </button>
+  );
+}
+
+function Select({ label, children, ...props }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-xs font-bold text-ink">{label}</span>
+
+      <select className={selectClass} {...props}>
+        {children}
+      </select>
+    </label>
+  );
+}
