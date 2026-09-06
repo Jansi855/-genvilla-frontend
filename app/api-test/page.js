@@ -1,6 +1,9 @@
 import { getListings } from "@/lib/listingsApi";
+import { connection } from "next/server";
 
 export default async function ApiTestPage() {
+  await connection();
+
   const properties = await getListings();
 
   return (

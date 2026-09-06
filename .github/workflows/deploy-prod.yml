@@ -12,6 +12,7 @@ concurrency:
 env:
   AWS_REGION: ap-south-1
   RELEASE_ID: ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}
+  NEXT_PUBLIC_API_URL: https://api.genvilla.in
 jobs:
   deploy:
     if: github.ref == 'refs/heads/prod'
@@ -46,7 +47,15 @@ jobs:
         run: |
           IMAGE="$REGISTRY/genvilla-frontend:$RELEASE_ID"
           if ! aws ecr describe-images --repository-name genvilla-frontend --image-ids "imageTag=$RELEASE_ID" >/dev/null 2>&1; then
-            docker build --platform linux/amd64 --pull --build-arg "NEXT_PUBLIC_ASSET_BASE_URL=$ASSETS_URL/releases/$RELEASE_ID" --build-arg "NEXT_PUBLIC_PROPERTY_VIDEO_URL=$PROPERTY_VIDEO_URL" --build-arg "NEXT_PUBLIC_HOME_VIDEO_URL=$HOME_VIDEO_URL" -t "$IMAGE" .
+            docker build \
+              --platform linux/amd64 \
+              --pull \
+              --build-arg "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL" \
+              --build-arg "NEXT_PUBLIC_ASSET_BASE_URL=$ASSETS_URL/releases/$RELEASE_ID" \
+              --build-arg "NEXT_PUBLIC_PROPERTY_VIDEO_URL=$PROPERTY_VIDEO_URL" \
+              --build-arg "NEXT_PUBLIC_HOME_VIDEO_URL=$HOME_VIDEO_URL" \
+              -t "$IMAGE" \
+              .
             docker push "$IMAGE"
           fi
       - run: npm ci --prefix infra
