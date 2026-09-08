@@ -1,0 +1,1574 @@
+/* =========================================
+   RESET
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+
+body {
+    font-family: "Inter", sans-serif;
+    overflow-x: hidden;
+    background: #071a20;
+}
+
+
+
+/* =========================================
+   VIDEO BACKGROUND
+========================================= */
+
+.video-background {
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -3;
+
+    overflow: hidden;
+}
+
+
+.video-background video {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    display: block;
+}
+
+
+
+/* =========================================
+   VIDEO OVERLAY
+========================================= */
+
+.background-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: -2;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(3, 20, 26, 0.55),
+            rgba(3, 20, 26, 0.30)
+        );
+}
+
+
+
+/* =========================================
+   LOGIN PAGE
+========================================= */
+
+.login-page {
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px 20px;
+}
+
+
+
+/* =========================================
+   LOGIN CONTAINER
+========================================= */
+
+.login-container {
+    width: min(900px, 92vw);
+
+    min-height: 560px;
+
+    display: grid;
+
+    grid-template-columns: 0.9fr 1.1fr;
+
+    border-radius: 24px;
+
+    overflow: hidden;
+
+    position: relative;
+
+    background: rgba(255, 255, 255, 0.12);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.35);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    animation: cardAppear 0.7s ease;
+}
+
+
+
+/* =========================================
+   LEFT PANEL
+========================================= */
+
+.welcome-section {
+    padding: 38px;
+
+    display: flex;
+    align-items: center;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(4, 28, 35, 0.90),
+            rgba(5, 39, 44, 0.72)
+        );
+
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+
+.welcome-content {
+    width: 100%;
+}
+
+
+
+/* =========================================
+   LOGO
+========================================= */
+
+.logo {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    margin-bottom: 38px;
+
+    font-size: 21px;
+
+    font-weight: 700;
+}
+
+
+.logo-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    color: #13d39b;
+
+    background: rgba(19, 211, 155, 0.09);
+
+    border: 1px solid rgba(19, 211, 155, 0.4);
+
+    box-shadow:
+        0 0 20px rgba(19, 211, 155, 0.12);
+}
+
+
+.logo > span > span {
+    color: #13d39b;
+}
+
+
+
+/* =========================================
+   WELCOME HEADING
+========================================= */
+
+.welcome-section h1 {
+    font-size: 46px;
+
+    line-height: 0.98;
+
+    letter-spacing: -1.8px;
+
+    font-weight: 800;
+
+    margin-bottom: 20px;
+}
+
+
+.welcome-section h1 span {
+    display: block;
+
+    color: #13d39b;
+}
+
+
+.welcome-description {
+    max-width: 390px;
+
+    color: rgba(255, 255, 255, 0.72);
+
+    font-size: 13px;
+
+    line-height: 1.65;
+
+    margin-bottom: 30px;
+}
+
+
+
+/* =========================================
+   BENEFITS
+========================================= */
+
+.benefits {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 11px;
+}
+
+
+.benefit-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 12px 14px;
+
+    min-height: 68px;
+
+    border-radius: 15px;
+
+    background: rgba(255, 255, 255, 0.075);
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    transition: 0.25s ease;
+}
+
+
+.benefit-card:hover {
+    transform: translateX(5px);
+
+    background: rgba(19, 211, 155, 0.09);
+
+    border-color: rgba(19, 211, 155, 0.25);
+}
+
+
+.benefit-icon {
+    width: 43px;
+    height: 43px;
+
+    min-width: 43px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    color: #13d39b;
+
+    background: rgba(19, 211, 155, 0.12);
+
+    font-size: 16px;
+}
+
+
+.benefit-text h3 {
+    font-size: 12px;
+
+    font-weight: 700;
+
+    margin-bottom: 4px;
+}
+
+
+.benefit-text p {
+    font-size: 10px;
+
+    line-height: 1.4;
+
+    color: rgba(255, 255, 255, 0.62);
+}
+
+
+
+/* =========================================
+   TRUST
+========================================= */
+
+.trust-message {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 25px;
+
+    font-size: 10px;
+
+    color: rgba(255, 255, 255, 0.65);
+}
+
+
+.trust-message i {
+    color: #13d39b;
+
+    font-size: 14px;
+}
+
+
+
+/* =========================================
+   RIGHT FORM SECTION
+========================================= */
+
+.form-section {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 38px 48px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.99),
+            rgba(248, 252, 250, 0.98)
+        );
+
+    overflow: hidden;
+}
+
+
+
+/* Decorative green glow */
+
+.form-section::before {
+    content: "";
+
+    position: absolute;
+
+    width: 280px;
+    height: 280px;
+
+    border-radius: 50%;
+
+    background: rgba(19, 211, 155, 0.08);
+
+    top: -170px;
+
+    right: -120px;
+
+    filter: blur(8px);
+
+    pointer-events: none;
+}
+
+
+.form-section::after {
+    content: "";
+
+    position: absolute;
+
+    width: 220px;
+    height: 220px;
+
+    border-radius: 50%;
+
+    background: rgba(19, 211, 155, 0.05);
+
+    bottom: -140px;
+
+    left: -100px;
+
+    filter: blur(8px);
+
+    pointer-events: none;
+}
+
+
+
+/* =========================================
+   FORM CONTAINER
+========================================= */
+
+.form-container {
+    width: 100%;
+
+    max-width: 430px;
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+
+/* =========================================
+   FORM HEADER
+========================================= */
+
+.form-header {
+    margin-bottom: 26px;
+}
+
+
+.form-header h2 {
+    color: #111827;
+
+    font-size: 37px;
+
+    line-height: 1.05;
+
+    font-weight: 800;
+
+    letter-spacing: -1.5px;
+
+    margin-bottom: 8px;
+}
+
+
+.form-header h2::after {
+    content: "";
+
+    display: block;
+
+    width: 42px;
+
+    height: 4px;
+
+    margin-top: 9px;
+
+    border-radius: 20px;
+
+    background: #13bb88;
+}
+
+
+.form-header p {
+    color: #788292;
+
+    font-size: 12px;
+}
+
+
+
+/* =========================================
+   INPUT GROUP
+========================================= */
+
+.input-group {
+    margin-bottom: 17px;
+}
+
+
+.input-group label {
+    display: block;
+
+    color: #273142;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    margin-bottom: 7px;
+}
+
+
+
+/* =========================================
+   INPUT BOX
+========================================= */
+
+.input-box {
+    position: relative;
+
+    width: 100%;
+
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    background: #ffffff;
+
+    border: 1px solid #dce1e7;
+
+    border-radius: 12px;
+
+    transition: all 0.25s ease;
+
+    box-shadow:
+        0 3px 12px rgba(0, 0, 0, 0.025);
+}
+
+
+.input-box:hover {
+    border-color: #b7c7c0;
+}
+
+
+.input-box:focus-within {
+    border-color: #13bb88;
+
+    box-shadow:
+        0 0 0 4px rgba(19, 187, 136, 0.08),
+        0 8px 20px rgba(19, 187, 136, 0.07);
+
+    transform: translateY(-1px);
+}
+
+
+
+/* =========================================
+   INPUT
+========================================= */
+
+.input-box input {
+    width: 100%;
+
+    height: 100%;
+
+    padding: 0 50px 0 15px;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: #202938;
+
+    font-family: inherit;
+
+    font-size: 12px;
+}
+
+
+.input-box input::placeholder {
+    color: #a0a8b5;
+}
+
+
+
+/* =========================================
+   EMAIL ICON - RIGHT SIDE
+========================================= */
+
+.email-icon {
+    position: absolute;
+
+    right: 10px;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 34px;
+
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #8993a3;
+
+    font-size: 14px;
+
+    pointer-events: none;
+
+    z-index: 5;
+}
+
+
+
+/* =========================================
+   PASSWORD EYE - RIGHT SIDE
+========================================= */
+
+.eye-btn {
+    position: absolute;
+
+    right: 10px;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 34px;
+
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: #8993a3;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    z-index: 5;
+
+    transition: 0.2s ease;
+}
+
+
+.eye-btn:hover {
+    color: #13bb88;
+
+    background: #f1f5f4;
+}
+
+
+
+/* =========================================
+   VALIDATION
+========================================= */
+
+.error-message {
+    display: block;
+
+    min-height: 15px;
+
+    margin-top: 5px;
+
+    color: #e63946;
+
+    font-size: 11px;
+}
+
+
+.input-box.error {
+    border-color: #e63946;
+
+    box-shadow:
+        0 0 0 3px rgba(230, 57, 70, 0.08);
+}
+
+
+.input-box.success {
+    border-color: #10b981;
+}
+
+
+
+/* =========================================
+   FORM OPTIONS
+========================================= */
+
+.form-options {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin: 2px 0 19px;
+}
+
+
+.remember-me {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: #687386;
+
+    font-size: 11px;
+
+    cursor: pointer;
+}
+
+
+.remember-me input {
+    display: none;
+}
+
+
+.custom-checkbox {
+    width: 17px;
+
+    height: 17px;
+
+    border: 1px solid #cbd3dc;
+
+    border-radius: 4px;
+
+    position: relative;
+
+    background: #ffffff;
+
+    transition: 0.2s ease;
+}
+
+
+.remember-me input:checked + .custom-checkbox {
+    background: #13bb88;
+
+    border-color: #13bb88;
+}
+
+
+.remember-me input:checked + .custom-checkbox::after {
+    content: "✓";
+
+    position: absolute;
+
+    top: -1px;
+
+    left: 3px;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.forgot-password {
+    color: #08a879;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+
+
+/* =========================================
+   LOGIN MESSAGE
+========================================= */
+
+.login-message {
+    text-align: center;
+
+    font-size: 11px;
+
+    margin: 0 0 7px;
+
+    min-height: 0;
+}
+
+
+.login-message.error {
+    color: #e63946;
+}
+
+
+.login-message.success {
+    color: #10b981;
+}
+
+
+
+/* =========================================
+   LOGIN BUTTON
+========================================= */
+
+.login-button {
+    width: 100%;
+
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    border: none;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #15bd8b,
+            #08a979
+        );
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 10px 25px rgba(13, 178, 132, 0.22);
+
+    transition: 0.25s ease;
+}
+
+
+.login-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 14px 30px rgba(13, 178, 132, 0.32);
+}
+
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+
+.login-button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+.button-content {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+}
+
+
+
+/* =========================================
+   LOADING SPINNER
+========================================= */
+
+.loading-spinner {
+    display: none;
+
+    width: 17px;
+
+    height: 17px;
+
+    border: 2px solid rgba(255, 255, 255, 0.35);
+
+    border-top-color: #ffffff;
+
+    border-radius: 50%;
+
+    animation: loginSpin 0.7s linear infinite;
+}
+
+
+.login-button.loading .button-content {
+    display: none;
+}
+
+
+.login-button.loading .loading-spinner {
+    display: block;
+}
+
+
+@keyframes loginSpin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+
+/* =========================================
+   DIVIDER
+========================================= */
+
+.divider {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 24px 0 18px;
+}
+
+
+.divider span {
+    height: 1px;
+
+    flex: 1;
+
+    background: #e4e7eb;
+}
+
+
+.divider p {
+    color: #a0a7b3;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+
+
+/* =========================================
+   SOCIAL LOGIN
+========================================= */
+
+.social-login {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+}
+
+
+.social-button {
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    border: 1px solid #e0e4e9;
+
+    border-radius: 11px;
+
+    background: white;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+
+.social-button:hover {
+    border-color: #13bb88;
+
+    background: #f8fffc;
+
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.05);
+
+    transform: translateY(-1px);
+}
+
+
+
+/* =========================================
+   GOOGLE
+========================================= */
+
+.google-icon {
+    color: #4285f4;
+
+    font-family: Arial, sans-serif;
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+
+/* =========================================
+   MICROSOFT
+========================================= */
+
+.microsoft-icon {
+    width: 16px;
+
+    height: 16px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 2px;
+}
+
+
+.microsoft-icon span {
+    display: block;
+}
+
+
+.microsoft-icon span:nth-child(1) {
+    background: #f25022;
+}
+
+
+.microsoft-icon span:nth-child(2) {
+    background: #7fba00;
+}
+
+
+.microsoft-icon span:nth-child(3) {
+    background: #00a4ef;
+}
+
+
+.microsoft-icon span:nth-child(4) {
+    background: #ffb900;
+}
+
+
+
+/* =========================================
+   REGISTER
+========================================= */
+
+.register-section {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    margin-top: 23px;
+
+    color: #707b8d;
+
+    font-size: 10px;
+}
+
+
+.register-section a {
+    color: #08a879;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+
+.register-section a:hover {
+    text-decoration: underline;
+}
+
+
+
+/* =========================================
+   CARD ANIMATION
+========================================= */
+
+@keyframes cardAppear {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(25px)
+            scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 850px) {
+
+    .login-container {
+        width: min(680px, 92vw);
+
+        grid-template-columns: 1fr;
+
+        min-height: auto;
+    }
+
+
+    .welcome-section {
+        padding: 32px;
+
+        display: block;
+    }
+
+
+    .welcome-section h1 {
+        font-size: 40px;
+    }
+
+
+    .benefits {
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr 1fr;
+    }
+
+
+    .benefit-card {
+        min-height: 100px;
+
+        flex-direction: column;
+
+        text-align: center;
+
+        justify-content: center;
+    }
+
+
+    .trust-message {
+        display: none;
+    }
+
+
+    .form-section {
+        padding: 35px;
+    }
+
+}
+
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .login-page {
+        padding: 15px;
+    }
+
+
+    .login-container {
+        width: 100%;
+
+        border-radius: 20px;
+    }
+
+
+    .welcome-section {
+        padding: 28px 22px;
+    }
+
+
+    .logo {
+        margin-bottom: 25px;
+    }
+
+
+    .welcome-section h1 {
+        font-size: 36px;
+    }
+
+
+    .welcome-description {
+        font-size: 12px;
+
+        margin-bottom: 22px;
+    }
+
+
+    .benefits {
+        grid-template-columns: 1fr;
+    }
+
+
+    .benefit-card {
+        flex-direction: row;
+
+        text-align: left;
+
+        min-height: auto;
+    }
+
+
+    .form-section {
+        padding: 30px 22px;
+    }
+
+
+    .form-header h2 {
+        font-size: 32px;
+    }
+
+
+    .social-login {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 400px) {
+
+    .login-page {
+        padding: 10px;
+    }
+
+
+    .welcome-section {
+        padding: 25px 18px;
+    }
+
+
+    .form-section {
+        padding: 25px 18px;
+    }
+
+
+    .welcome-section h1 {
+        font-size: 32px;
+    }
+
+
+    .form-header h2 {
+        font-size: 29px;
+    }
+
+}
+
+
+/* =========================================
+   YOURHOME FOOTER
+========================================= */
+
+.site-footer {
+    width: 100%;
+    height: 62px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 7px 20px;
+
+    background: rgba(10, 21, 29, 0.94);
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    color: #a7b0bb;
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 20;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+
+/* =========================================
+   COPYRIGHT
+========================================= */
+
+.footer-copyright {
+    color: #8f9aa7;
+
+    font-size: 11px;
+
+    line-height: 1;
+
+    font-weight: 500;
+}
+
+
+/* =========================================
+   FOOTER LINKS
+========================================= */
+
+.footer-links {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    line-height: 1;
+}
+
+
+.footer-links a {
+    color: #e2e6ea;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+
+.footer-links a:hover {
+    color: #13d39b;
+}
+
+
+/* Bullet */
+
+.footer-links span {
+    color: #7e8995;
+
+    font-size: 9px;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 500px) {
+
+    .site-footer {
+        height: 60px;
+
+        padding: 7px 10px;
+
+        gap: 6px;
+    }
+
+    .footer-copyright {
+        font-size: 10px;
+    }
+
+    .footer-links {
+        gap: 6px;
+    }
+
+    .footer-links a {
+        font-size: 9px;
+    }
+
+    .footer-links span {
+        font-size: 8px;
+    }
+}
+
+.genvilla-login-logo {
+  width: 155px;
+  height: 58px;
+  object-fit: contain;
+  object-position: left center;
+  display: block;
+  border-radius: 10px;
+  mix-blend-mode: screen;
+}
+
+/* =========================================
+   SIGNUP PAGE
+========================================= */
+
+.signup-page {
+  min-height: 100vh;
+  height: auto;
+  align-items: flex-start;
+  padding: 16px 20px 30px;
+}
+
+.signup-page .login-container {
+  min-height: auto;
+  height: auto;
+  margin: 0 auto;
+}
+
+.signup-page .welcome-section {
+  padding: 28px 38px;
+}
+
+.signup-page .form-section {
+  padding: 24px 48px;
+}
+
+.signup-page .logo {
+  margin-bottom: 22px;
+}
+
+.signup-page .genvilla-login-logo {
+  width: 125px;
+  height: 48px;
+}
+
+.signup-page .welcome-section h1 {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+.signup-page .welcome-description {
+  margin-bottom: 18px;
+}
+
+.signup-page .benefits {
+  gap: 8px;
+}
+
+.signup-page .benefit-card {
+  min-height: 58px;
+  padding: 9px 13px;
+}
+
+.signup-page .trust-message {
+  margin-top: 15px;
+}
+
+/* FORM */
+
+.signup-page .form-header {
+  margin-bottom: 14px;
+}
+
+.signup-page .form-header h2 {
+  font-size: 32px;
+  margin-bottom: 5px;
+}
+
+.signup-page .form-header h2::after {
+  margin-top: 6px;
+}
+
+.signup-page .input-group {
+  margin-bottom: 7px;
+}
+
+.signup-page .input-group label {
+  margin-bottom: 5px;
+}
+
+.signup-page .input-box {
+  height: 43px;
+}
+
+.signup-page .input-box input {
+  height: 100%;
+}
+
+.signup-page .error-message {
+  min-height: 10px;
+  margin-top: 2px;
+}
+
+.signup-page .form-options {
+  margin: 3px 0 8px;
+}
+
+.signup-page .login-button {
+  height: 44px;
+}
+
+.signup-page .divider {
+  margin: 10px 0;
+}
+
+.signup-page .social-button {
+  height: 40px;
+}
+
+.signup-page .register-section {
+  margin-top: 9px;
+}
+
+/* Smaller-height laptops */
+@media (max-height: 700px) and (min-width: 851px) {
+  .signup-page {
+    padding-top: 8px;
+  }
+
+  .signup-page .welcome-section,
+  .signup-page .form-section {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+}
