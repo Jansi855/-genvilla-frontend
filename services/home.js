@@ -23,7 +23,7 @@ export async function getHomeData(city) {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/listings?${params.toString()}`,
+      `/api/proxy-listings?${params.toString()}`,
       {
         method: "GET",
         headers: {

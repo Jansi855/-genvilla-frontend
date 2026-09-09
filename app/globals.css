@@ -86,3 +86,55 @@ button, select { cursor: pointer; }
     animation: none;
   }
 }
+
+
+.genvilla-range {
+  --range-progress: 20%;
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 100%;
+  height: 5px;
+
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+
+  background: linear-gradient(
+    to right,
+    #087154 0%,
+    #087154 var(--range-progress),
+    #d7e8e0 var(--range-progress),
+    #d7e8e0 100%
+  );
+}
+
+.genvilla-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 18px;
+  height: 18px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #087154;
+
+  cursor: pointer;
+
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+}
+
+.genvilla-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #087154;
+
+  cursor: pointer;
+}

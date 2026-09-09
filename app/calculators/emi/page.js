@@ -1,69 +1,505 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { ArrowRight, Calculator, CalendarDays, ChartNoAxesCombined, CircleDollarSign, CircleHelp, House, Landmark, Lightbulb, ShieldCheck, WalletCards } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { calculateEmi } from '@/lib/calculators';
-import { money, percent } from '@/utils/currency';
+import { useMemo, useState } from "react";
+import {
+  Calculator,
+  ShieldCheck,
+  TrendingUp,
+  Lightbulb,
+  Home,
+  WalletCards,
+  IndianRupee,
+  Info,
+  ChevronRight,
+} from "lucide-react";
 
-const schema = z.object({
-  propertyPrice: z.coerce.number().positive('Property price must be greater than zero.'),
-  downPayment: z.coerce.number().min(0, 'Down payment must be zero or greater.'),
-  interestRate: z.coerce.number().positive('Interest rate must be greater than zero.'),
-  tenureYears: z.coerce.number().positive('Loan tenure must be greater than zero.')
-}).refine((data) => data.downPayment <= data.propertyPrice, { message: 'Down payment cannot exceed property price.', path: ['downPayment'] });
+const formatINR = (value) => {
+  return new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(Math.round(value));
+};
 
-const defaults = { propertyPrice: 10000000, downPayment: 2000000, interestRate: 8.5, tenureYears: 20 };
-const tenureOptions = [5, 10, 15, 20, 25, 30];
+export default function EmiCalculatorPage() {
+  const [propertyPrice, setPropertyPrice] = useState(10000000);
+  const [downPayment, setDownPayment] = useState(2000000);
+  const [interestRate, setInterestRate] = useState(8.5);
+  const [tenure, setTenure] = useState(20);
 
-export default function EmiPage() {
-  const { register, watch, setValue, formState: { errors } } = useForm({ resolver: zodResolver(schema), defaultValues: defaults, mode: 'onChange' });
-  const values = watch();
-  const price = Number(values.propertyPrice) || 0;
-  const downPayment = Math.max(0, Number(values.downPayment) || 0);
-  const loanAmount = Math.max(0, price - downPayment);
-  const interestRate = Number(values.interestRate) || 0;
-  const tenureYears = Number(values.tenureYears) || 0;
-  const loan = useMemo(() => calculateEmi({ loanAmount, interestRate, tenureYears }), [loanAmount, interestRate, tenureYears]);
-  const downPaymentPercent = price ? (downPayment / price) * 100 : 0;
-  const breakdown = [
-    { name: 'Principal Amount', value: loan.principal, color: '#155f4b' },
-    { name: 'Total Interest', value: loan.totalInterest, color: '#f0ad26' }
-  ];
-  const setField = (name, value) => setValue(name, Number(value), { shouldValidate: true, shouldDirty: true });
+  const result = useMemo(() => {
+    const loanAmount = Math.max(propertyPrice - downPayment, 0);
 
-  return <><Navbar/><main className="min-h-screen bg-[#fbfaf6] text-ink">
-    <div className="mx-auto max-w-[1280px] px-5 pb-10 pt-4 lg:px-8">
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[10px] font-medium text-ink/45"><Link href="/">Home</Link><span>›</span><Link href="/calculators">Calculators</Link><span>›</span><span className="text-ink/70">EMI Calculator</span></nav>
-      <header className="mt-3 grid items-start gap-5 lg:grid-cols-[1fr_360px]"><div><p className="text-[10px] font-bold uppercase tracking-[.12em] text-[#c48818]">HOME LOAN CALCULATOR</p><h1 className="mt-2 max-w-xl font-serif text-[34px] leading-[.9] tracking-[-.04em] md:text-[42px]">Plan Your Home Loan<br/>With Confidence.</h1><p className="mt-3 max-w-md text-[12px] leading-5 text-ink/60">Estimate your monthly EMI, total interest and overall loan repayment before making a property decision.</p></div><div className="mt-1 flex items-center gap-3 rounded-lg border border-[#dfe7dd] bg-[#f0f5ed] px-4 py-3 text-[10px] leading-4 text-ink/70"><Lightbulb className="shrink-0 text-green" size={22}/><span>Adjust the values to see how your EMI and total interest change in real time.</span></div></header>
+    const monthlyRate = interestRate / 12 / 100;
+    const months = tenure * 12;
 
-      <section className="mt-5 grid gap-5 lg:grid-cols-[.42fr_.58fr]">
-        <form className="rounded-xl border border-ink/10 bg-white p-4 shadow-sm md:p-5"><div className="flex items-center gap-3"><span className="grid h-8 w-8 place-items-center rounded-md bg-[#eef4ed] text-green"><Calculator size={18}/></span><h2 className="font-serif text-lg">Loan Details</h2></div><div className="mt-5 space-y-5">
-          <RangeField label="Property Price" min={100000} max={50000000} step={100000} value={price} onChange={(value)=>setField('propertyPrice',value)} display={money(price)} error={errors.propertyPrice?.message}/>
-          <RangeField label="Down Payment" min={0} max={Math.max(price, 1)} step={100000} value={downPayment} onChange={(value)=>setField('downPayment',value)} display={money(downPayment)} error={errors.downPayment?.message}/>
-          <div className="rounded-lg bg-[#eff6ee] px-3 py-2.5"><div className="flex items-center justify-between gap-3 text-[11px]"><span className="flex items-center gap-2 font-bold text-green"><House size={15}/> Estimated Loan Amount</span><b>{money(loanAmount)}</b></div></div>
-          <RangeField label="Interest Rate (% p.a.)" min={5} max={15} step={0.1} value={interestRate} onChange={(value)=>setField('interestRate',value)} display={`${interestRate.toFixed(2)} %`} error={errors.interestRate?.message}/>
-          <div><p className="text-[11px] font-bold">Loan Tenure</p><div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-6">{tenureOptions.map(year=><button key={year} type="button" onClick={()=>setField('tenureYears',year)} className={`h-8 rounded-md border text-[10px] font-bold transition ${tenureYears===year?'border-[#0f5c48] bg-[#0f5c48] text-white':'border-ink/10 bg-white text-ink/60 hover:border-green'}`}>{year} Yrs</button>)}</div></div>
-          <div className="flex gap-2 rounded-lg border border-[#dfe7dd] bg-[#fafcf9] p-3 text-[10px] leading-4 text-ink/60"><span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 border-green"><i className="h-2 w-2 rounded-full bg-green"/></span><span><b className="block text-ink">Your down payment covers {percent(downPaymentPercent)} of the property price.</b>Increasing your down payment can significantly reduce your EMI and total interest.</span></div>
-        </div></form>
+    let emi = 0;
 
-        <section aria-live="polite" className="rounded-xl border border-ink/10 bg-white p-4 shadow-sm md:p-5"><p className="text-[10px] font-bold text-ink/70">Estimated Monthly EMI <CircleHelp className="ml-1 inline text-ink/35" size={12}/></p><h2 className="mt-2 font-serif text-4xl leading-none text-[#173c33] md:text-[44px]">{money(loan.emi)}</h2><p className="mt-1 text-[12px] font-bold">per month</p><p className="mt-2 max-w-[260px] text-[10px] leading-4 text-ink/55">Based on your loan details, this is your estimated monthly payment.</p>{loanAmount===0&&<p className="mt-3 rounded-md bg-[#eff6ee] p-2 text-[10px] font-bold text-green">No loan is required for the entered property price and down payment.</p>}
-          <div className="mt-4 grid gap-2 sm:grid-cols-3"><Metric icon={WalletCards} label="Loan Amount" value={money(loan.principal)}/><Metric icon={ChartNoAxesCombined} label="Total Interest" value={money(loan.totalInterest)}/><Metric icon={CircleDollarSign} label="Total Repayment" value={money(loan.totalPayment)}/></div>
-          <div className="mt-4 rounded-xl border border-ink/10 p-4"><h3 className="text-[11px] font-bold">Loan Breakdown <CircleHelp className="ml-1 inline text-ink/35" size={12}/></h3><div className="grid items-center gap-4 sm:grid-cols-[.78fr_1.22fr]"><div className="relative mx-auto h-48 w-full max-w-[220px]"><ResponsiveContainer><PieChart><Pie data={breakdown} dataKey="value" nameKey="name" innerRadius="60%" outerRadius="88%" paddingAngle={2} stroke="none">{breakdown.map(item=><Cell key={item.name} fill={item.color}/>)}</Pie><Tooltip formatter={(value)=>money(value)} contentStyle={{borderRadius:8,border:'1px solid #e4e7e0',fontSize:11}}/></PieChart></ResponsiveContainer><div className="pointer-events-none absolute inset-0 grid place-items-center text-center"><span className="text-[10px] text-ink/50">Total Payment</span><b className="-mt-8 font-serif text-xl">{money(loan.totalPayment)}</b></div></div><div className="space-y-3"><BreakdownRow color="bg-green" label="Principal Amount" value={loan.principal} total={loan.totalPayment}/><BreakdownRow color="bg-[#f0ad26]" label="Total Interest" value={loan.totalInterest} total={loan.totalPayment}/><div className="mt-5 flex gap-2 rounded-md bg-[#f0f5ed] p-3 text-[10px] leading-4 text-ink/65"><ShieldCheck className="shrink-0 text-green" size={17}/>The chart shows how your total payment is divided between principal and interest.</div></div></div></div>
-        </section>
+    if (loanAmount > 0 && monthlyRate > 0 && months > 0) {
+      emi =
+        (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, months)) /
+        (Math.pow(1 + monthlyRate, months) - 1);
+    }
+
+    const totalRepayment = emi * months;
+    const totalInterest = totalRepayment - loanAmount;
+
+    const principalPercent =
+      totalRepayment > 0 ? (loanAmount / totalRepayment) * 100 : 0;
+
+    const interestPercent =
+      totalRepayment > 0 ? (totalInterest / totalRepayment) * 100 : 0;
+
+    const downPaymentPercent =
+      propertyPrice > 0 ? (downPayment / propertyPrice) * 100 : 0;
+
+    return {
+      loanAmount,
+      emi,
+      totalInterest,
+      totalRepayment,
+      principalPercent,
+      interestPercent,
+      downPaymentPercent,
+    };
+  }, [propertyPrice, downPayment, interestRate, tenure]);
+
+  const changePropertyPrice = (value) => {
+    setPropertyPrice(value);
+
+    if (downPayment > value) {
+      setDownPayment(value);
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-[#fbfaf6] text-[#09231f]">
+      <section className="mx-auto max-w-[1360px] px-6 pb-16 pt-6 lg:px-10">
+        {/* Breadcrumb */}
+        <div className="mb-8 flex items-center gap-2 text-[13px] text-[#5f6d6a]">
+          <span>Home</span>
+
+          <ChevronRight size={14} />
+
+          <span>Calculators</span>
+
+          <ChevronRight size={14} />
+
+          <span className="text-[#2d3a37]">EMI Calculator</span>
+        </div>
+
+        {/* HERO */}
+        <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.05fr]">
+          {/* Left */}
+          <div>
+            <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.17em] text-[#087154]">
+              Home Loan Calculator
+            </p>
+
+            <h1 className="hero-title font-serif text-[46px] leading-[0.98] tracking-[-0.02em] text-[#08242d] sm:text-[52px] lg:text-[56px] xl:text-[60px]">
+              <span className="whitespace-nowrap">Plan Your Home Loan</span>
+              <br />
+              <span className="whitespace-nowrap">With Confidence.</span>
+            </h1>
+
+            <p className="mt-6 max-w-[620px] text-[16px] leading-7 text-[#566764]">
+              Estimate your monthly EMI, total interest and overall loan
+              repayment before making a property decision.
+            </p>
+          </div>
+
+          {/* Right Image */}
+          <div className="hero-image group relative h-[310px] overflow-hidden rounded-[28px] shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl">
+            <img
+              src="/emi/home-loan.jpg"
+              alt="Home loan"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-r from-[#fbfaf6] via-[#fbfaf6]/20 to-transparent" />
+
+            <p className="absolute right-[13%] top-8 rotate-[-5deg] font-serif text-[28px] italic leading-8 text-[#09262c]">
+              A Smarter
+              <br />
+              Tomorrow
+            </p>
+          </div>
+        </div>
+
+        {/* Feature Row */}
+        <div className="mt-7 flex flex-wrap items-center gap-8 lg:gap-12">
+          <FeatureItem
+            icon={<Calculator size={21} />}
+            title="Accurate Estimates"
+            description="Plan your finances better"
+          />
+
+          <FeatureItem
+            icon={<ShieldCheck size={21} />}
+            title="Make Informed Decisions"
+            description="Compare different scenarios"
+          />
+
+          <FeatureItem
+            icon={<TrendingUp size={21} />}
+            title="Your Dream Home Closer"
+            description="Smart tools for a brighter future"
+          />
+
+          {/* Adjustment Tip */}
+          <div className="group ml-auto flex min-w-[320px] items-center gap-4 rounded-[14px] border border-[#d1dfd7] bg-[#f1f8f2] px-5 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#9fc5b4] hover:bg-[#eaf6ed] hover:shadow-lg">
+            <Lightbulb size={25} className="shrink-0 text-[#087154]" />
+
+            <p className="text-[13px] leading-5 text-[#2e5149]">
+              Adjust the values to see how your EMI
+              <br />
+              and total interest change in real time.
+            </p>
+          </div>
+        </div>
+
+        {/* Calculator Grid */}
+        <div className="mt-7 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          {/* LEFT CARD */}
+          <div className="rounded-[18px] border border-[#d9dfdc] bg-white p-6 shadow-[0_3px_16px_rgba(0,0,0,0.03)] lg:p-7">
+            {/* Heading */}
+            <div className="group flex cursor-default items-center gap-3 rounded-xl p-2 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-md">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#def4e6] text-[#087154] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#087154] group-hover:text-white">
+                <Calculator size={22} />
+              </div>
+
+              <h2 className="font-serif text-[27px] font-semibold text-[#102a2f]">
+                Loan Details
+              </h2>
+            </div>
+
+            {/* Property Price */}
+            <SliderField
+              label="Property Price"
+              value={propertyPrice}
+              min={1000000}
+              max={50000000}
+              step={100000}
+              display={`₹${formatINR(propertyPrice)}`}
+              minLabel="₹10,00,000"
+              maxLabel="₹5,00,00,000"
+              onChange={changePropertyPrice}
+            />
+
+            {/* Down Payment */}
+            <SliderField
+              label="Down Payment"
+              value={downPayment}
+              min={0}
+              max={propertyPrice}
+              step={100000}
+              display={`₹${formatINR(downPayment)}`}
+              minLabel="₹0"
+              maxLabel={`₹${formatINR(propertyPrice)}`}
+              onChange={setDownPayment}
+            />
+
+            {/* Loan Amount */}
+            <div className="mb-8 flex items-center justify-between rounded-[10px] bg-[#edf7ed] px-4 py-4 text-[#087154]">
+              <div className="flex items-center gap-3 font-semibold">
+                <Home size={22} />
+
+                <span>Estimated Loan Amount</span>
+              </div>
+
+              <strong>₹{formatINR(result.loanAmount)}</strong>
+            </div>
+
+            {/* Interest */}
+            <SliderField
+              label="Interest Rate (% p.a.)"
+              value={interestRate}
+              min={6}
+              max={15}
+              step={0.05}
+              display={`${interestRate.toFixed(2)} %`}
+              minLabel="6%"
+              maxLabel="15%"
+              onChange={setInterestRate}
+            />
+
+            {/* Tenure */}
+            <div className="mb-5">
+              <p className="mb-4 text-[14px] font-semibold">Loan Tenure</p>
+
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                {[5, 10, 15, 20, 25, 30].map((year) => (
+                  <button
+                    key={year}
+                    onClick={() => setTenure(year)}
+                    type="button"
+                    className={`rounded-[7px] border py-3 text-[12px] font-medium transition ${
+                      tenure === year
+                        ? "border-[#087154] bg-[#087154] text-white"
+                        : "border-[#d9dfdc] bg-white text-[#34433f] hover:border-[#087154]"
+                    }`}
+                  >
+                    {year} Yrs
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Downpayment note */}
+            <div className="flex gap-3 rounded-[10px] border border-[#d5e1db] bg-[#f7fbf7] px-4 py-4">
+              <Info size={23} className="mt-[2px] shrink-0 text-[#087154]" />
+
+              <div>
+                <p className="text-[13px] font-semibold text-[#223834]">
+                  Your down payment covers{" "}
+                  {result.downPaymentPercent.toFixed(1)}% of the property price.
+                </p>
+
+                <p className="mt-1 text-[11px] leading-5 text-[#687772]">
+                  Increasing your down payment can significantly reduce your EMI
+                  and total interest.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT CARD */}
+          <div className="rounded-[18px] border border-[#d9dfdc] bg-white p-6 shadow-[0_3px_16px_rgba(0,0,0,0.03)] lg:p-7">
+            {/* EMI Header */}
+            <div className="flex justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="text-[14px] font-semibold">
+                    Estimated Monthly EMI
+                  </p>
+
+                  <Info size={15} className="text-[#71807b]" />
+                </div>
+
+                <div className="mt-3 font-serif text-[60px] leading-none text-[#087154] lg:text-[66px]">
+                  ₹{formatINR(result.emi)}
+                </div>
+
+                <p className="mt-2 text-[19px] font-semibold">per month</p>
+
+                <p className="mt-4 max-w-[440px] text-[13px] leading-5 text-[#677773]">
+                  Based on your loan details, this is your estimated monthly
+                  payment.
+                </p>
+              </div>
+
+              {/* Small graphic */}
+              <div className="hidden min-w-[150px] text-center sm:block">
+                <p className="rotate-[-6deg] font-serif text-[19px] italic leading-6">
+                  Home
+                  <br />
+                  today
+                  <br />
+                  brighter
+                  <br />
+                  tomorrow
+                </p>
+
+                <Home
+                  size={60}
+                  strokeWidth={1.4}
+                  className="mx-auto mt-2 text-[#16855e]"
+                />
+              </div>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="mt-7 grid gap-3 sm:grid-cols-3">
+              <SummaryCard
+                icon={<WalletCards size={22} />}
+                label="Loan Amount"
+                value={`₹${formatINR(result.loanAmount)}`}
+              />
+
+              <SummaryCard
+                icon={<TrendingUp size={22} />}
+                label="Total Interest"
+                value={`₹${formatINR(result.totalInterest)}`}
+              />
+
+              <SummaryCard
+                icon={<IndianRupee size={22} />}
+                label="Total Repayment"
+                value={`₹${formatINR(result.totalRepayment)}`}
+              />
+            </div>
+
+            {/* Breakdown */}
+            <div className="mt-5 rounded-[14px] border border-[#dce2df] p-5">
+              <div className="flex items-center gap-2">
+                <p className="text-[14px] font-semibold">Loan Breakdown</p>
+
+                <Info size={14} className="text-[#71807b]" />
+              </div>
+
+              <div className="mt-7 grid items-center gap-8 md:grid-cols-[220px_1fr]">
+                {/* Donut */}
+                <div className="relative mx-auto h-[210px] w-[210px]">
+                  <div
+                    className="h-full w-full rounded-full"
+                    style={{
+                      background: `conic-gradient(
+                        #087154 0% ${result.principalPercent}%,
+                        #ffb115 ${result.principalPercent}% 100%
+                      )`,
+                    }}
+                  />
+
+                  <div className="absolute inset-[35px] flex flex-col items-center justify-center rounded-full bg-white text-center">
+                    <span className="text-[12px] text-[#71807b]">
+                      Total Payment
+                    </span>
+
+                    <strong className="mt-1 font-serif text-[19px]">
+                      ₹{formatINR(result.totalRepayment)}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Breakdown right */}
+                <div>
+                  <BreakdownRow
+                    color="#087154"
+                    label="Principal Amount"
+                    value={`₹${formatINR(result.loanAmount)}`}
+                    percentage={result.principalPercent}
+                  />
+
+                  <BreakdownRow
+                    color="#ffb115"
+                    label="Total Interest"
+                    value={`₹${formatINR(result.totalInterest)}`}
+                    percentage={result.interestPercent}
+                  />
+
+                  <div className="mt-6 flex gap-3 rounded-[10px] bg-[#edf6ea] px-4 py-4">
+                    <Info size={21} className="shrink-0 text-[#087154]" />
+
+                    <p className="text-[12px] leading-5 text-[#38544c]">
+                      You will pay around{" "}
+                      <strong>{result.interestPercent.toFixed(0)}%</strong> of
+                      the total repayment as interest.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
-
-      <section className="mt-5 rounded-xl border border-ink/10 bg-white p-4 shadow-sm md:p-5"><h2 className="font-serif text-lg">Your Loan at a Glance</h2><dl className="mt-4 grid grid-cols-2 gap-y-4 border-y border-ink/10 py-4 sm:grid-cols-4 lg:grid-cols-8">{[[House,'Property Price',money(price)],[WalletCards,'Down Payment',money(downPayment)],[Landmark,'Loan Amount',money(loan.principal)],[CircleDollarSign,'Interest Rate',percent(interestRate)],[CalendarDays,'Loan Tenure',`${tenureYears} Years`],[CircleDollarSign,'Monthly EMI',money(loan.emi)],[ChartNoAxesCombined,'Total Interest',money(loan.totalInterest)],[WalletCards,'Total Repayment',money(loan.totalPayment)]].map(([Icon,label,value])=><div className="flex gap-2 px-2 first:pl-0" key={label}><Icon className="mt-1 shrink-0 text-green" size={18}/><div><dt className="text-[9px] text-ink/50">{label}</dt><dd className="mt-1 text-[11px] font-bold">{value}</dd></div></div>)}</dl><div className="mt-4 flex flex-col gap-4 rounded-lg bg-[#f0f5ed] p-4 md:flex-row md:items-center"><div className="flex min-w-0 gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-green text-green"><CircleDollarSign size={18}/></span><div><h3 className="font-serif text-base">Can You Comfortably Afford This EMI?</h3><p className="mt-1 text-[10px] leading-4 text-ink/65">EMI is only one part of the decision. Combine it with your income, expenses, savings, existing EMI and property details for a complete analysis.</p></div></div><div className="flex shrink-0 flex-col gap-2 sm:flex-row"><Link className="btn-dark !min-h-9 !px-5 !py-2 !text-[10px]" href="/calculators/affordability">Check My Affordability <ArrowRight size={14}/></Link><Link className="btn-outline !min-h-9 !px-5 !py-2 !text-[10px]" href="/smart-recommendation">Get Smart Recommendation <ArrowRight size={14}/></Link></div></div></section>
-      <p className="mt-3 text-center text-[9px] text-ink/45">EMI calculations are estimates based on the information provided. Actual loan terms, rates and payments may vary by lender.</p>
-    </div></main><Footer/></>;
+    </main>
+  );
 }
 
-function RangeField({label,min,max,step,value,onChange,display,error}){return <label className="block"><span className="flex items-center justify-between gap-3 text-[11px] font-bold"><span>{label}</span><output className="rounded-md border border-ink/10 bg-[#fbfbf9] px-3 py-1.5 text-[10px] font-semibold">{display}</output></span><input className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#d7e4dd] accent-green" type="range" min={min} max={max} step={step} value={Math.min(Math.max(value,min),max)} onChange={e=>onChange(e.target.value)}/><span className="mt-1 flex justify-between text-[9px] text-ink/45"><span>{label.includes('Rate')?`${min}%`:money(min)}</span><span>{label.includes('Rate')?`${max}%`:money(max)}</span></span>{error&&<small className="mt-1 block text-[10px] text-red-700">{error}</small>}</label>}
-function Metric({icon:Icon,label,value}){return <div className="flex items-center gap-2 rounded-lg border border-ink/10 p-3"><Icon className="shrink-0 text-green" size={19}/><div><span className="block text-[9px] text-ink/55">{label}</span><b className="mt-0.5 block text-[13px]">{value}</b></div></div>}
-function BreakdownRow({color,label,value,total}){return <div className="flex items-center justify-between border-b border-ink/10 pb-3 text-[10px]"><span className="flex items-center gap-2"><i className={`h-2.5 w-2.5 rounded-full ${color}`}/>{label}</span><b>{money(value)} <span className="ml-3">{percent(total?value/total*100:0)}</span></b></div>}
+/* ---------------- FEATURE ---------------- */
+
+function FeatureItem({ icon, title, description }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#def4e6] text-[#087154]">
+        {icon}
+      </div>
+
+      <div>
+        <p className="text-[12px] font-semibold text-[#1f3732]">{title}</p>
+
+        <p className="mt-1 text-[11px] text-[#6e7b77]">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- SLIDER ---------------- */
+
+function SliderField({
+  label,
+  value,
+  min,
+  max,
+  step,
+  display,
+  minLabel,
+  maxLabel,
+  onChange,
+}) {
+  const percent = max > min ? ((value - min) / (max - min)) * 100 : 0;
+
+  return (
+    <div className="mb-8">
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <label className="text-[14px] font-semibold">{label}</label>
+
+        <div className="min-w-[132px] rounded-[8px] border border-[#d7dfdb] bg-white px-4 py-3 text-right text-[14px] font-semibold">
+          {display}
+        </div>
+      </div>
+
+      <input
+        type="range"
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="genvilla-range w-full"
+        style={{
+          "--range-progress": `${percent}%`,
+        }}
+      />
+
+      <div className="mt-2 flex justify-between text-[11px] text-[#788681]">
+        <span>{minLabel}</span>
+
+        <span>{maxLabel}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- SUMMARY ---------------- */
+
+function SummaryCard({ icon, label, value }) {
+  return (
+    <div className="rounded-[10px] border border-[#dce2df] bg-white p-4">
+      <div className="flex items-center gap-3">
+        <div className="text-[#087154]">{icon}</div>
+
+        <div>
+          <p className="text-[10px] text-[#71807b]">{label}</p>
+
+          <p className="mt-1 font-serif text-[17px] font-semibold text-[#132d29]">
+            {value}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- BREAKDOWN ---------------- */
+
+function BreakdownRow({ color, label, value, percentage }) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-[#e4e8e6] py-4 text-[12px]">
+      <div className="flex items-center gap-3">
+        <span
+          className="h-3 w-3 rounded-full"
+          style={{
+            backgroundColor: color,
+          }}
+        />
+
+        <span>{label}</span>
+      </div>
+
+      <div className="flex gap-4 font-semibold">
+        <span>{value}</span>
+
+        <span>{percentage.toFixed(1)}%</span>
+      </div>
+    </div>
+  );
+}
