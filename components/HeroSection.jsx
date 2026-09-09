@@ -31,7 +31,7 @@ export default function HeroSection() {
         preload="metadata"
         className="absolute inset-0 h-full w-full object-cover"
       >
-        {process.env.NEXT_PUBLIC_PROPERTY_VIDEO_URL && <source src={process.env.NEXT_PUBLIC_PROPERTY_VIDEO_URL} type="video/mp4" />}
+        <source src="/hero/property-video.mp4" type="video/mp4" />
       </video>
 
       {/* =====================================================
@@ -107,15 +107,7 @@ export default function HeroSection() {
               hover:bg-white/10
             "
           >
-            <span
-              className="
-                h-2
-                w-2
-                animate-pulse
-                rounded-full
-                bg-[#73e4b7]
-              "
-            />
+            <Sparkles size={15} strokeWidth={2} className="text-[#73e4b7]" />
 
             <span
               className="

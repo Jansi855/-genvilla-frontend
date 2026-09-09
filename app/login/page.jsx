@@ -11,15 +11,18 @@ import {
   EyeOff,
   Home,
   Lock,
-  Mail,
   ShieldCheck,
   TrendingUp,
+  User,
 } from "lucide-react";
 
 export default function LoginPage() {
   const loginVideoUrl = process.env.NEXT_PUBLIC_LOGIN_VIDEO_URL;
+
+  const [identifierType, setIdentifierType] = useState("EMAIL");
+
   const [form, setForm] = useState({
-    email: "",
+    identifier: "",
     password: "",
     rememberMe: false,
   });
@@ -27,7 +30,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [errors, setErrors] = useState({
-    email: "",
+    identifier: "",
     password: "",
   });
 
@@ -62,23 +65,58 @@ export default function LoginPage() {
   }
 
   // =========================
+  // IDENTIFIER TYPE
+  // =========================
+
+  function handleIdentifierType(type) {
+    setIdentifierType(type);
+
+    setForm((prev) => ({
+      ...prev,
+      identifier: "",
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      identifier: "",
+    }));
+
+    setMessage({
+      text: "",
+      type: "",
+    });
+  }
+
+  // =========================
   // VALIDATION
   // =========================
 
   function validateForm() {
     const newErrors = {
-      email: "",
+      identifier: "",
       password: "",
     };
 
-    const email = form.email.trim();
+    const identifier = form.identifier.trim();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!identifier) {
+      newErrors.identifier =
+        identifierType === "EMAIL"
+          ? "Please enter your email."
+          : "Please enter your username.";
+    } else if (identifierType === "EMAIL") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!email) {
-      newErrors.email = "Please enter your email.";
-    } else if (!emailRegex.test(email)) {
-      newErrors.email = "Please enter a valid email address.";
+      if (!emailRegex.test(identifier)) {
+        newErrors.identifier = "Please enter a valid email address.";
+      }
+    } else {
+      const usernameRegex = /^[a-z0-9._]{3,10}$/;
+
+      if (!usernameRegex.test(identifier)) {
+        newErrors.identifier =
+          "Username must be 3–10 characters using lowercase letters, numbers, dots or underscores.";
+      }
     }
 
     if (!form.password) {
@@ -89,7 +127,7 @@ export default function LoginPage() {
 
     setErrors(newErrors);
 
-    return !newErrors.email && !newErrors.password;
+    return !newErrors.identifier && !newErrors.password;
   }
 
   // =========================
@@ -111,14 +149,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (form.rememberMe) {
-        localStorage.setItem("genvillaRememberedEmail", form.email.trim());
+      if (form.rememberMe && identifierType === "EMAIL") {
+        localStorage.setItem("genvillaRememberedEmail", form.identifier.trim());
       } else {
         localStorage.removeItem("genvillaRememberedEmail");
       }
 
       // ==========================================
-      // CONNECT YOUR REAL AUTH API HERE LATER
+      // FRONTEND ONLY
+      // REAL AUTH API WILL BE CONNECTED LATER
       // ==========================================
 
       await new Promise((resolve) => setTimeout(resolve, 900));
@@ -137,24 +176,6 @@ export default function LoginPage() {
     }
   }
 
-  // =========================
-  // SOCIAL LOGIN
-  // =========================
-
-  function handleGoogleLogin() {
-    setMessage({
-      text: "Google login will be available soon.",
-      type: "success",
-    });
-  }
-
-  function handleMicrosoftLogin() {
-    setMessage({
-      text: "Microsoft login will be available soon.",
-      type: "success",
-    });
-  }
-
   return (
     <>
       {/* =========================
@@ -162,39 +183,35 @@ export default function LoginPage() {
       ========================== */}
 
       <div className="video-background">
-        {loginVideoUrl && (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-            id="backgroundVideo"
-          >
-            <source src={loginVideoUrl} type="video/mp4" />
-            Your browser does not support HTML5 video.
-          </video>
-        )}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          id="backgroundVideo"
+        >
+          <source src="/login/front-end video.mp4" type="video/mp4" />
+          Your browser does not support HTML5 video.
+        </video>
       </div>
-
-      {/* VIDEO OVERLAY */}
 
       <div className="background-overlay" />
 
       {/* =========================
-          MAIN LOGIN PAGE
+          LOGIN PAGE
       ========================== */}
 
-      <main className="login-page">
+      <main className="login-page premium-login-page">
         <div className="login-container">
           {/* =========================
-              LEFT SIDE
+              LEFT PANEL
           ========================== */}
 
           <section className="welcome-section">
             <div className="welcome-content">
-              {/* LOGO */}
+              {/* LOGO - UNCHANGED */}
 
               <Link href="/" className="logo" aria-label="GenVilla Home">
                 <img
@@ -207,38 +224,35 @@ export default function LoginPage() {
               {/* HEADING */}
 
               <h1>
-                Find Your
-                <span>Place</span>
+                Welcome
+                <span>Back</span>
               </h1>
 
               {/* DESCRIPTION */}
 
               <p className="welcome-description">
-                Access your GenVilla account to discover properties, analyze
-                costs, understand affordability and make smarter real-estate
+                Sign in to your GenVilla account to discover properties, analyze
+                affordability, compare costs and make smarter real-estate
                 decisions.
               </p>
 
-              {/* =========================
-                  BENEFITS
-              ========================== */}
+              {/* BENEFITS */}
 
               <div className="benefits">
-                {/* BENEFIT 1 */}
-
                 <div className="benefit-card">
                   <div className="benefit-icon">
                     <ShieldCheck size={19} />
                   </div>
 
                   <div className="benefit-text">
-                    <h3>Secure & Safe</h3>
+                    <h3>Secure Account</h3>
 
-                    <p>Your account and information stay protected.</p>
+                    <p>
+                      Keep your property journey and account information
+                      protected.
+                    </p>
                   </div>
                 </div>
-
-                {/* BENEFIT 2 */}
 
                 <div className="benefit-card">
                   <div className="benefit-icon">
@@ -246,13 +260,11 @@ export default function LoginPage() {
                   </div>
 
                   <div className="benefit-text">
-                    <h3>Smart Property Discovery</h3>
+                    <h3>Discover Properties</h3>
 
-                    <p>Explore properties and useful insights in one place.</p>
+                    <p>Explore listings and property insights in one place.</p>
                   </div>
                 </div>
-
-                {/* BENEFIT 3 */}
 
                 <div className="benefit-card">
                   <div className="benefit-icon">
@@ -260,14 +272,17 @@ export default function LoginPage() {
                   </div>
 
                   <div className="benefit-text">
-                    <h3>Smarter Decisions</h3>
+                    <h3>Analyze Smarter</h3>
 
-                    <p>Analyze affordability, cost, ROI and property risk.</p>
+                    <p>
+                      Use affordability, cost, ROI and risk tools before you
+                      decide.
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* TRUST */}
+              {/* TRUST MESSAGE */}
 
               <div className="trust-message">
                 <CheckCircle2 size={15} style={{ color: "#13d39b" }} />
@@ -278,17 +293,63 @@ export default function LoginPage() {
           </section>
 
           {/* =========================
-              RIGHT SIDE
+              RIGHT PANEL
           ========================== */}
 
-          <section className="form-section">
+          <section className="form-section login-form-section">
             <div className="form-container">
               {/* HEADER */}
 
-              <div className="form-header">
-                <h2>Login</h2>
+              <div className="register-page-header login-page-header">
+                <div className="register-header-icon">
+                  <User size={23} />
+                </div>
 
-                <p>Welcome back! Sign in to your GenVilla account.</p>
+                <div>
+                  <p className="register-kicker">LOGIN PAGE</p>
+
+                  <h2>Welcome back</h2>
+
+                  <span className="register-title-line" />
+                </div>
+              </div>
+
+              <p className="login-intro">
+                Sign in to continue your GenVilla property journey.
+              </p>
+
+              {/* =========================
+                  EMAIL / USERNAME SELECTOR
+              ========================== */}
+
+              <div className="login-identifier-section">
+                <div className="login-identifier-heading">
+                  <span>Sign in using</span>
+
+                  <small>Choose how you want to log in</small>
+                </div>
+
+                <div className="login-identifier-selector">
+                  <button
+                    type="button"
+                    onClick={() => handleIdentifierType("EMAIL")}
+                    className={`login-identifier-btn ${
+                      identifierType === "EMAIL" ? "active" : ""
+                    }`}
+                  >
+                    Email
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleIdentifierType("USERNAME")}
+                    className={`login-identifier-btn ${
+                      identifierType === "USERNAME" ? "active" : ""
+                    }`}
+                  >
+                    Username
+                  </button>
+                </div>
               </div>
 
               {/* =========================
@@ -296,34 +357,70 @@ export default function LoginPage() {
               ========================== */}
 
               <form onSubmit={handleSubmit}>
-                {/* EMAIL */}
+                {/* IDENTIFIER */}
 
                 <div className="input-group">
-                  <label htmlFor="email">Email</label>
+                  <label htmlFor="identifier">
+                    {identifierType === "EMAIL" ? "Email" : "Username"}
+                  </label>
 
-                  <div className={`input-box ${errors.email ? "error" : ""}`}>
+                  <div
+                    className={`input-box ${errors.identifier ? "error" : ""}`}
+                  >
                     <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      placeholder="Enter your email"
-                      autoComplete="email"
-                      value={form.email}
-                      onChange={handleChange}
+                      type={identifierType === "EMAIL" ? "email" : "text"}
+                      id="identifier"
+                      name="identifier"
+                      placeholder={
+                        identifierType === "EMAIL"
+                          ? "Enter your email"
+                          : "Enter your username"
+                      }
+                      autoComplete={
+                        identifierType === "EMAIL" ? "email" : "username"
+                      }
+                      value={form.identifier}
+                      onChange={(event) => {
+                        const value =
+                          identifierType === "EMAIL"
+                            ? event.target.value.toLowerCase()
+                            : event.target.value.toLowerCase();
+
+                        handleChange({
+                          target: {
+                            name: "identifier",
+                            value,
+                            type: "text",
+                            checked: false,
+                          },
+                        });
+                      }}
+                      onBlur={() => {
+                        setForm((prev) => ({
+                          ...prev,
+                          identifier: prev.identifier.trim(),
+                        }));
+                      }}
                     />
 
                     <span className="email-icon">
-                      <Mail size={17} />
+                      <User size={17} />
                     </span>
                   </div>
 
-                  <small className="error-message">{errors.email}</small>
+                  <small className="error-message">{errors.identifier}</small>
                 </div>
 
                 {/* PASSWORD */}
 
                 <div className="input-group">
-                  <label htmlFor="password">Password</label>
+                  <div className="login-password-label">
+                    <label htmlFor="password">Password</label>
+
+                    <Link href="/forgot-password" className="forgot-password">
+                      Forgot password?
+                    </Link>
+                  </div>
 
                   <div
                     className={`input-box ${errors.password ? "error" : ""}`}
@@ -353,9 +450,9 @@ export default function LoginPage() {
                   <small className="error-message">{errors.password}</small>
                 </div>
 
-                {/* REMEMBER + FORGOT */}
+                {/* REMEMBER ME */}
 
-                <div className="form-options">
+                <div className="form-options login-options">
                   <label className="remember-me">
                     <input
                       type="checkbox"
@@ -368,13 +465,9 @@ export default function LoginPage() {
 
                     <span>Remember me</span>
                   </label>
-
-                  <Link href="/forgot-password" className="forgot-password">
-                    Forgot password?
-                  </Link>
                 </div>
 
-                {/* LOGIN MESSAGE */}
+                {/* MESSAGE */}
 
                 {message.text && (
                   <div className={`login-message ${message.type}`}>
@@ -392,68 +485,36 @@ export default function LoginPage() {
                   <span className="button-content">
                     <Lock size={15} />
 
-                    <span>Login</span>
+                    <span>Log in</span>
                   </span>
 
                   <span className="loading-spinner" />
                 </button>
               </form>
 
-              {/* =========================
-                  DIVIDER
-              ========================== */}
+              {/* SECURITY CARD */}
 
-              <div className="divider">
-                <span />
+              <div className="login-security-card">
+                <div className="login-security-icon">
+                  <ShieldCheck size={18} />
+                </div>
 
-                <p>or continue with</p>
+                <div>
+                  <strong>Secure GenVilla Login</strong>
 
-                <span />
+                  <p>
+                    Your login details stay protected during your property
+                    journey.
+                  </p>
+                </div>
               </div>
 
-              {/* =========================
-                  SOCIAL LOGIN
-              ========================== */}
-
-              <div className="social-login">
-                {/* GOOGLE */}
-
-                <button
-                  type="button"
-                  className="social-button"
-                  onClick={handleGoogleLogin}
-                >
-                  <span className="google-icon">G</span>
-
-                  <span>Google</span>
-                </button>
-
-                {/* MICROSOFT */}
-
-                <button
-                  type="button"
-                  className="social-button"
-                  onClick={handleMicrosoftLogin}
-                >
-                  <span className="microsoft-icon">
-                    <span />
-                    <span />
-                    <span />
-                    <span />
-                  </span>
-
-                  <span>Microsoft</span>
-                </button>
-              </div>
-
-              {/* =========================
-                  CREATE ACCOUNT
-              ========================== */}
+              {/* REGISTER */}
 
               <div className="register-section">
                 <span>Don&apos;t have an account?</span>
 
-                <Link href="/signup">Register</Link>
+                <Link href="/signup">Create account</Link>
               </div>
             </div>
           </section>

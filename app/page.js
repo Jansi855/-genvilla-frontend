@@ -20,12 +20,11 @@ export default function HomePage() {
   const [city, setCity] = useState(cities[0]);
 
   const { data, isLoading, isError, refetch } = useQuery({
-  queryKey: ["home", city],
-  queryFn: () => getHomeData(city),
-});
+    queryKey: ["home", city],
+    queryFn: () => getHomeData(city),
+  });
 
-  const visible =
-  data?.featuredProperties?.slice(0, 3) || [];
+  const visible = data?.featuredProperties?.slice(0, 3) || [];
 
   return (
     <>
@@ -225,29 +224,52 @@ export default function HomePage() {
                 into one clear view—then explain what points toward buy, wait or
                 avoid.
               </p>
-
               {/* Decision badges */}
-              <div className="mt-8 flex flex-wrap gap-3">
-                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2.5 text-xs font-bold tracking-wide text-emerald-700 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-md">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  BUY
-                </span>
+              <div className="mt-8 flex flex-wrap gap-4">
+                {/* BUY */}
+                <div className="group flex items-center gap-3 rounded-full border border-emerald-300 bg-emerald-50/80 px-5 py-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                    <Icons.Sparkles size={14} />
+                  </span>
 
-                <span className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-5 py-2.5 text-xs font-bold tracking-wide text-amber-700 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-md">
-                  <span className="h-2 w-2 rounded-full bg-amber-500" />
-                  WAIT
-                </span>
+                  <span className="h-5 w-px bg-emerald-300" />
 
-                <span className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-xs font-bold tracking-wide text-red-600 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-md">
-                  <span className="h-2 w-2 rounded-full bg-red-400" />
-                  AVOID
-                </span>
+                  <span className="text-xs font-bold tracking-[0.08em] text-emerald-700">
+                    BUY
+                  </span>
+                </div>
+
+                {/* WAIT */}
+                <div className="group flex items-center gap-3 rounded-full border border-amber-300 bg-amber-50/80 px-5 py-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-500">
+                    <Icons.Sparkles size={14} />
+                  </span>
+
+                  <span className="h-5 w-px bg-amber-300" />
+
+                  <span className="text-xs font-bold tracking-[0.08em] text-amber-700">
+                    WAIT
+                  </span>
+                </div>
+
+                {/* AVOID */}
+                <div className="group flex items-center gap-3 rounded-full border border-red-300 bg-red-50/80 px-5 py-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-500">
+                    <Icons.Sparkles size={14} />
+                  </span>
+
+                  <span className="h-5 w-px bg-red-300" />
+
+                  <span className="text-xs font-bold tracking-[0.08em] text-red-600">
+                    AVOID
+                  </span>
+                </div>
               </div>
 
               {/* Property image */}
               <div className="group relative mt-10 overflow-hidden rounded-[28px] border border-ink/5 bg-white shadow-[0_15px_40px_rgba(20,50,40,0.08)]">
                 <img
-                  src={assetUrl('/hero/property-lifestyle.png')}
+                  src={assetUrl("/hero/property-lifestyle.png")}
                   alt="Modern residential property"
                   className="h-[180px] w-full object-cover object-center opacity-75 transition-all duration-700 group-hover:scale-105 group-hover:opacity-90"
                 />
@@ -376,7 +398,7 @@ export default function HomePage() {
                           <span
                             className={`mb-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] ${category.className}`}
                           >
-                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                            <Icons.Sparkles size={11} strokeWidth={2.2} />
                             {category.label}
                           </span>
                         )}
@@ -496,7 +518,7 @@ export default function HomePage() {
                 {
                   number: "01",
                   title: "FIND",
-                  image: assetUrl('/how-it-works/find-property.jpg'),
+                  image: assetUrl("/how-it-works/find-property.jpg"),
 
                   text: "Explore verified properties across your city and find the one that fits your needs.",
 
@@ -512,7 +534,7 @@ export default function HomePage() {
                 {
                   number: "02",
                   title: "COST",
-                  image: assetUrl('/how-it-works/calculate-cost.jpeg'),
+                  image: assetUrl("/how-it-works/calculate-cost.jpeg"),
 
                   text: "Calculate the true cost with all charges, taxes, and hidden costs included.",
 
@@ -528,7 +550,7 @@ export default function HomePage() {
                 {
                   number: "03",
                   title: "ANALYZE",
-                  image: assetUrl('/how-it-works/analyze-property.jfif'),
+                  image: assetUrl("/how-it-works/analyze-property.jfif"),
 
                   text: "Check affordability, ROI, and risk to understand if it’s the right move.",
 
@@ -544,7 +566,7 @@ export default function HomePage() {
                 {
                   number: "04",
                   title: "DECIDE",
-                  image: assetUrl('/how-it-works/smart-decision.jfif'),
+                  image: assetUrl("/how-it-works/smart-decision.jfif"),
 
                   text: "Get a smart recommendation — buy, wait, or avoid with confidence.",
 
@@ -995,7 +1017,7 @@ export default function HomePage() {
                   {/* Image */}
                   <div className="relative h-[115px] w-full overflow-hidden rounded-[18px] sm:w-[145px]">
                     <img
-                      src={assetUrl('/hero/property-lifestyle.png')}
+                      src={assetUrl("/hero/property-lifestyle.png")}
                       alt="Palm Grove Residence"
                       className="h-full w-full object-cover transition-all duration-700 group-hover:scale-110"
                     />
@@ -1207,7 +1229,7 @@ export default function HomePage() {
                 {/* Market Image */}
                 <div className="group/market relative hidden h-[230px] overflow-hidden rounded-[24px] lg:block">
                   <img
-                    src={assetUrl('/insights/market-insights.jpg')}
+                    src={assetUrl("/insights/market-insights.jpg")}
                     alt="GenVilla real estate market insights"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover/market:scale-110"
                   />
@@ -1407,7 +1429,7 @@ export default function HomePage() {
                 {/* Government Benefits Image */}
                 <div className="group/government relative hidden h-[230px] overflow-hidden rounded-[24px] lg:block">
                   <img
-                    src={assetUrl('/insights/government-benefits.webp')}
+                    src={assetUrl("/insights/government-benefits.webp")}
                     alt="Government housing benefits and schemes"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover/government:scale-110"
                   />
@@ -1608,7 +1630,7 @@ export default function HomePage() {
                   {/* Image */}
                   <div className="group relative overflow-hidden rounded-[26px]">
                     <img
-                      src={assetUrl('/insights/property-decision.jpg')}
+                      src={assetUrl("/insights/property-decision.jpg")}
                       alt="Compare property buying, renting, selling and investing decisions"
                       className="h-[330px] w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.04] md:h-[380px]"
                     />
