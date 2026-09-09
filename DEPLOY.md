@@ -47,7 +47,7 @@ gh variable set PROPERTY_VIDEO_URL --repo genvilla-in/frontend --body "$ASSETS_U
 gh workflow run deploy-prod.yml --repo genvilla-in/frontend --ref prod
 ```
 
-The optimized login background is stored at `media/login-video-v1.mp4`. The production workflow derives its public URL from the `AssetsUrl` CloudFormation output and passes it to the build as `NEXT_PUBLIC_LOGIN_VIDEO_URL`.
+The optimized login background is stored at `media/login-video-v1.mp4`. The foundation CDK stack publishes its CDN location as `LoginVideoUrl`, and the production workflow passes that output to the build as `NEXT_PUBLIC_LOGIN_VIDEO_URL`.
 
 Video URLs and asset prefix are public build-time configuration. Never put secrets in `NEXT_PUBLIC_*`. Future session/authentication secrets belong in Secrets Manager and ECS secret injection. Personalized/authentication responses must not be cached by Cloudflare.
 

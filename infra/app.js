@@ -12,6 +12,7 @@ const {
 } = cdk;
 const app = new cdk.App();
 const env = { account: "013565030464", region: "ap-south-1" };
+const loginVideoKey = "media/login-video-v1.mp4";
 const foundation = new cdk.Stack(app, "GenvillaFrontendFoundation", {
   env,
   terminationProtection: true,
@@ -83,6 +84,8 @@ for (const [key, value] of Object.entries({
   RepositoryUri: repo.repositoryUri,
   AssetsBucket: bucket.bucketName,
   AssetsUrl: `https://${cdn.distributionDomainName}`,
+  LoginVideoKey: loginVideoKey,
+  LoginVideoUrl: `https://${cdn.distributionDomainName}/${loginVideoKey}`,
   DistributionId: cdn.distributionId,
   DeployRoleArn: role.roleArn,
 }))

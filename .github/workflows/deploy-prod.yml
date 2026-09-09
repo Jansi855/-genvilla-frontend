@@ -35,6 +35,7 @@ jobs:
           aws cloudformation describe-stacks --stack-name GenvillaFrontendFoundation > /tmp/foundation.json
           echo "ASSETS_BUCKET=$(jq -r '.Stacks[0].Outputs[] | select(.OutputKey=="AssetsBucket") | .OutputValue' /tmp/foundation.json)" >> "$GITHUB_ENV"
           echo "ASSETS_URL=$(jq -r '.Stacks[0].Outputs[] | select(.OutputKey=="AssetsUrl") | .OutputValue' /tmp/foundation.json)" >> "$GITHUB_ENV"
+          echo "LOGIN_VIDEO_URL=$(jq -r '.Stacks[0].Outputs[] | select(.OutputKey=="LoginVideoUrl") | .OutputValue' /tmp/foundation.json)" >> "$GITHUB_ENV"
       - name: Publish versioned assets
         run: aws s3 sync public/ "s3://$ASSETS_BUCKET/releases/$RELEASE_ID/" --cache-control 'public,max-age=31536000,immutable'
       - uses: aws-actions/amazon-ecr-login@v2.1.6
@@ -54,7 +55,7 @@ jobs:
               --build-arg "NEXT_PUBLIC_ASSET_BASE_URL=$ASSETS_URL/releases/$RELEASE_ID" \
               --build-arg "NEXT_PUBLIC_PROPERTY_VIDEO_URL=$PROPERTY_VIDEO_URL" \
               --build-arg "NEXT_PUBLIC_HOME_VIDEO_URL=$HOME_VIDEO_URL" \
-              --build-arg "NEXT_PUBLIC_LOGIN_VIDEO_URL=$ASSETS_URL/media/login-video-v1.mp4" \
+              --build-arg "NEXT_PUBLIC_LOGIN_VIDEO_URL=$LOGIN_VIDEO_URL" \
               -t "$IMAGE" \
               .
             docker push "$IMAGE"

@@ -1,15 +1,17 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const [dockerfile, workflow, apiTestPage, loginPage] = await Promise.all([
-  readFile(new URL("../Dockerfile", import.meta.url), "utf8"),
-  readFile(
-    new URL("../.github/workflows/deploy-prod.yml", import.meta.url),
-    "utf8",
-  ),
-  readFile(new URL("../app/api-test/page.js", import.meta.url), "utf8"),
-  readFile(new URL("../app/login/page.jsx", import.meta.url), "utf8"),
-]);
+const [dockerfile, workflow, apiTestPage, loginPage, cdkApp] =
+  await Promise.all([
+    readFile(new URL("../Dockerfile", import.meta.url), "utf8"),
+    readFile(
+      new URL("../.github/workflows/deploy-prod.yml", import.meta.url),
+      "utf8",
+    ),
+    readFile(new URL("../app/api-test/page.js", import.meta.url), "utf8"),
+    readFile(new URL("../app/login/page.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../infra/app.js", import.meta.url), "utf8"),
+  ]);
 
 assert.match(
   dockerfile,
@@ -33,8 +35,13 @@ assert.match(
 );
 assert.match(
   workflow,
-  /--build-arg "NEXT_PUBLIC_LOGIN_VIDEO_URL=\$ASSETS_URL\/media\/login-video-v1\.mp4"/,
-  "The production workflow should serve the login video through the asset CDN",
+  /--build-arg "NEXT_PUBLIC_LOGIN_VIDEO_URL=\$LOGIN_VIDEO_URL"/,
+  "The production workflow should pass the CDK-managed login video URL into the image build",
+);
+assert.match(
+  cdkApp,
+  /LoginVideoUrl: `https:\/\/\$\{cdn\.distributionDomainName\}\/\$\{loginVideoKey\}`/,
+  "The foundation stack should own the login video CDN URL",
 );
 assert.match(
   loginPage,
