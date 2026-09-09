@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 export default function LoginPage() {
+  const loginVideoUrl = process.env.NEXT_PUBLIC_LOGIN_VIDEO_URL;
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -136,19 +137,19 @@ export default function LoginPage() {
             className="relative hidden min-h-[520px] overflow-hidden text-white lg:flex"
           >
 
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              className="absolute inset-0 h-full w-full object-cover"
-            >
-              <source
-                src="/login/front-end video.mp4"
-                type="video/mp4"
-              />
-            </video>
+            {loginVideoUrl && (
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full object-cover"
+              >
+                <source src={loginVideoUrl} type="video/mp4" />
+              </video>
+            )}
 
             <div className="absolute inset-0 bg-[#082f27]/70" />
 

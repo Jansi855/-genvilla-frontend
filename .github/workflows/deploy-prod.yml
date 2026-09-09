@@ -54,6 +54,7 @@ jobs:
               --build-arg "NEXT_PUBLIC_ASSET_BASE_URL=$ASSETS_URL/releases/$RELEASE_ID" \
               --build-arg "NEXT_PUBLIC_PROPERTY_VIDEO_URL=$PROPERTY_VIDEO_URL" \
               --build-arg "NEXT_PUBLIC_HOME_VIDEO_URL=$HOME_VIDEO_URL" \
+              --build-arg "NEXT_PUBLIC_LOGIN_VIDEO_URL=$ASSETS_URL/media/login-video-v1.mp4" \
               -t "$IMAGE" \
               .
             docker push "$IMAGE"

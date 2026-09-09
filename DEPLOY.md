@@ -32,6 +32,7 @@ The repository excludes MP4 files. These source files were absent at deployment:
 
 - `public/hero/property-video.mp4`
 - `public/hero/home-video.mp4`
+- `public/login/front-end video.mp4` (supplied later as `public/login-vid.mp4`)
 
 Existing lifestyle images act as video posters. No missing video URL is requested until configured.
 
@@ -45,6 +46,8 @@ gh variable set PROPERTY_VIDEO_URL --repo genvilla-in/frontend --body "$ASSETS_U
 # Repeat for home-video-v1.mp4 and HOME_VIDEO_URL.
 gh workflow run deploy-prod.yml --repo genvilla-in/frontend --ref prod
 ```
+
+The optimized login background is stored at `media/login-video-v1.mp4`. The production workflow derives its public URL from the `AssetsUrl` CloudFormation output and passes it to the build as `NEXT_PUBLIC_LOGIN_VIDEO_URL`.
 
 Video URLs and asset prefix are public build-time configuration. Never put secrets in `NEXT_PUBLIC_*`. Future session/authentication secrets belong in Secrets Manager and ECS secret injection. Personalized/authentication responses must not be cached by Cloudflare.
 
