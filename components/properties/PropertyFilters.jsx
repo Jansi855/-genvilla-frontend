@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, KeyRound, MapPin, Search, RotateCcw } from "lucide-react";
+import { Home, KeyRound, Search, RotateCcw } from "lucide-react";
 
 import { propertyTypes } from "@/data/properties";
 import LocationAutocomplete from "@/components/location/LocationAutocomplete";
@@ -8,7 +8,12 @@ import LocationAutocomplete from "@/components/location/LocationAutocomplete";
 const selectClass =
   "h-12 w-full rounded-[14px] border border-ink/15 bg-white px-4 text-sm text-ink outline-none transition focus:border-green focus:ring-2 focus:ring-green/10";
 
-export default function PropertyFilters({ filters, onChange, onClear }) {
+export default function PropertyFilters({
+  filters,
+  onChange,
+  onClear,
+  onSearch,
+}) {
   const update = (key, value) =>
     onChange({
       ...filters,
@@ -16,7 +21,13 @@ export default function PropertyFilters({ filters, onChange, onClear }) {
     });
 
   return (
-    <div className="rounded-[28px] border border-ink/10 bg-white p-6 shadow-[0_18px_45px_rgba(18,55,43,0.08)]">
+    <form
+      className="rounded-[28px] border border-ink/10 bg-white p-6 shadow-[0_18px_45px_rgba(18,55,43,0.08)]"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSearch();
+      }}
+    >
       {/* TOP ROW */}
       <div className="flex items-center justify-between border-b border-ink/10 pb-5">
         <div className="flex gap-2">
@@ -115,14 +126,14 @@ export default function PropertyFilters({ filters, onChange, onClear }) {
 
         {/* SEARCH BUTTON */}
         <button
-          type="button"
+          type="submit"
           className="flex h-12 items-center justify-center gap-2 rounded-[14px] bg-[#08785a] px-7 text-sm font-bold text-white shadow-[0_8px_20px_rgba(8,120,90,0.18)] transition hover:bg-[#066b50]"
         >
           <Search size={17} />
           Search
         </button>
       </div>
-    </div>
+    </form>
   );
 }
 

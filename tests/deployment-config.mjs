@@ -1,7 +1,16 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const [dockerfile, workflow, apiTestPage, loginPage, cdkApp] =
+const [
+  dockerfile,
+  workflow,
+  apiTestPage,
+  loginPage,
+  signupPage,
+  heroSection,
+  footer,
+  cdkApp,
+] =
   await Promise.all([
     readFile(new URL("../Dockerfile", import.meta.url), "utf8"),
     readFile(
@@ -10,6 +19,9 @@ const [dockerfile, workflow, apiTestPage, loginPage, cdkApp] =
     ),
     readFile(new URL("../app/api-test/page.js", import.meta.url), "utf8"),
     readFile(new URL("../app/login/page.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/signup/page.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/HeroSection.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/Footer.jsx", import.meta.url), "utf8"),
     readFile(new URL("../infra/app.js", import.meta.url), "utf8"),
   ]);
 
@@ -52,6 +64,36 @@ assert.doesNotMatch(
   loginPage,
   /front-end video\.mp4/,
   "The login page should not request the missing local video",
+);
+assert.match(
+  signupPage,
+  /process\.env\.NEXT_PUBLIC_LOGIN_VIDEO_URL/,
+  "The signup page should use the configured login video URL",
+);
+assert.doesNotMatch(
+  signupPage,
+  /front-end video\.mp4/,
+  "The signup page should not request the missing local video",
+);
+assert.match(
+  heroSection,
+  /process\.env\.NEXT_PUBLIC_PROPERTY_VIDEO_URL/,
+  "The property hero should use the configured property video URL",
+);
+assert.doesNotMatch(
+  heroSection,
+  /src="\/hero\/property-video\.mp4"/,
+  "The property hero should not hardcode a missing local video",
+);
+assert.match(
+  footer,
+  /process\.env\.NEXT_PUBLIC_HOME_VIDEO_URL/,
+  "The footer should use the configured home video URL",
+);
+assert.doesNotMatch(
+  footer,
+  /src="\/hero\/home-video\.mp4"/,
+  "The footer should not hardcode a missing local video",
 );
 assert.match(
   apiTestPage,

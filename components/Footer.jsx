@@ -88,7 +88,12 @@ export default function Footer() {
                   preload="metadata"
                   className="absolute inset-0 h-full w-full object-cover"
                 >
-                  <source src="/hero/home-video.mp4" type="video/mp4" />
+                  {process.env.NEXT_PUBLIC_HOME_VIDEO_URL && (
+                    <source
+                      src={process.env.NEXT_PUBLIC_HOME_VIDEO_URL}
+                      type="video/mp4"
+                    />
+                  )}
                 </video>
 
                 {/* Very light overlay */}

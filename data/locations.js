@@ -76,10 +76,14 @@ export function searchLocations(query, limit = 6) {
   if (!needle) return locationOptions.filter((location) => !location.locality).slice(0, limit);
   return locationOptions
     .map((location) => {
-      const values = [location.label, location.city, location.locality, ...(location.aliases || [])].map(normalize);
-      const score = values.some((value) => value === needle) ? 0
-        : values.some((value) => value.startsWith(needle)) ? 1
-          : values.some((value) => value.includes(needle)) ? 2 : 99;
+      const primary = normalize(location.locality || location.city);
+      const label = normalize(location.label);
+      const aliases = (location.aliases || []).map(normalize);
+      const values = [label, normalize(location.city), primary, ...aliases];
+      const score = primary === needle || label === needle ? 0
+        : aliases.some((value) => value === needle) ? 1
+          : values.some((value) => value.startsWith(needle)) ? 2
+            : values.some((value) => value.includes(needle)) ? 3 : 99;
       return { location, score };
     })
     .filter(({ score }) => score < 99)

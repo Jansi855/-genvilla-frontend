@@ -1,24 +1,47 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import * as Icons from "lucide-react";
 
+const defaults = {
+  purpose: "Buy",
+  query: "",
+  type: "",
+  bhk: "",
+  budget: "",
+};
+
 export default function HomePropertySearch() {
-  const [purpose, setPurpose] = useState("buy");
+  const router = useRouter();
+  const [filters, setFilters] = useState(defaults);
+  const update = (key, value) =>
+    setFilters((current) => ({ ...current, [key]: value }));
+  const submit = (event) => {
+    event.preventDefault();
+    const params = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== defaults[key]) params.set(key, value);
+    });
+    router.push(`/properties${params.size ? `?${params}` : ""}`);
+  };
 
   return (
     <section className="relative z-20 bg-[#fbfcf9] px-5 py-8 lg:px-10">
       <div className="mx-auto max-w-[1280px]">
-        <div className="rounded-[28px] border border-[#173c30]/10 bg-white p-5 shadow-[0_18px_50px_rgba(18,55,43,0.10)] md:p-6">
-
+        <form
+          className="rounded-[28px] border border-[#173c30]/10 bg-white p-5 shadow-[0_18px_50px_rgba(18,55,43,0.10)] md:p-6"
+          onSubmit={submit}
+        >
           {/* Buy / Rent + Clear */}
           <div className="flex items-center justify-between border-b border-[#173c30]/10 pb-5">
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => setPurpose("buy")}
+                onClick={() => update("purpose", "Buy")}
                 className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold transition-all ${
-                  purpose === "buy"
+                  filters.purpose === "Buy"
                     ? "bg-[#0c2b23] text-white shadow-md"
                     : "bg-[#f4f1e9] text-[#173c30]/70"
                 }`}
@@ -29,9 +52,9 @@ export default function HomePropertySearch() {
 
               <button
                 type="button"
-                onClick={() => setPurpose("rent")}
+                onClick={() => update("purpose", "Rent")}
                 className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold transition-all ${
-                  purpose === "rent"
+                  filters.purpose === "Rent"
                     ? "bg-[#0c2b23] text-white shadow-md"
                     : "bg-[#f4f1e9] text-[#173c30]/70"
                 }`}
@@ -43,6 +66,7 @@ export default function HomePropertySearch() {
 
             <button
               type="button"
+              onClick={() => setFilters({ ...defaults })}
               className="flex items-center gap-2 text-xs font-semibold text-[#173c30]/50 transition hover:text-[#08785a]"
             >
               <Icons.RotateCcw size={14} />
@@ -52,7 +76,6 @@ export default function HomePropertySearch() {
 
           {/* Search Fields */}
           <div className="mt-5 grid gap-4 lg:grid-cols-[1.6fr_1fr_.8fr_1fr_auto]">
-
             {/* Location */}
             <div>
               <label className="mb-2 block text-xs font-semibold text-[#173c30]">
@@ -68,6 +91,8 @@ export default function HomePropertySearch() {
                 <input
                   type="text"
                   placeholder="City, sector or locality"
+                  value={filters.query}
+                  onChange={(event) => update("query", event.target.value)}
                   className="h-12 w-full rounded-[14px] border border-[#173c30]/15 bg-white pl-11 pr-4 text-sm text-[#173c30] outline-none transition focus:border-[#08785a] focus:ring-2 focus:ring-[#08785a]/10"
                 />
               </div>
@@ -79,12 +104,16 @@ export default function HomePropertySearch() {
                 Property Type
               </label>
 
-              <select className="h-12 w-full rounded-[14px] border border-[#173c30]/15 bg-white px-4 text-sm text-[#173c30] outline-none focus:border-[#08785a]">
-                <option>All Property Types</option>
-                <option>Apartment</option>
-                <option>Villa</option>
-                <option>Independent House</option>
-                <option>Plot</option>
+              <select
+                className="h-12 w-full rounded-[14px] border border-[#173c30]/15 bg-white px-4 text-sm text-[#173c30] outline-none focus:border-[#08785a]"
+                value={filters.type}
+                onChange={(event) => update("type", event.target.value)}
+              >
+                <option value="">All Property Types</option>
+                <option value="Apartment">Apartment</option>
+                <option value="Builder Floor">Builder Floor</option>
+                <option value="Villa">Villa</option>
+                <option value="Plot">Plot</option>
               </select>
             </div>
 
@@ -94,13 +123,17 @@ export default function HomePropertySearch() {
                 BHK
               </label>
 
-              <select className="h-12 w-full rounded-[14px] border border-[#173c30]/15 bg-white px-4 text-sm text-[#173c30] outline-none focus:border-[#08785a]">
-                <option>Any BHK</option>
-                <option>1 BHK</option>
-                <option>2 BHK</option>
-                <option>3 BHK</option>
-                <option>4 BHK</option>
-                <option>4+ BHK</option>
+              <select
+                className="h-12 w-full rounded-[14px] border border-[#173c30]/15 bg-white px-4 text-sm text-[#173c30] outline-none focus:border-[#08785a]"
+                value={filters.bhk}
+                onChange={(event) => update("bhk", event.target.value)}
+              >
+                <option value="">Any BHK</option>
+                <option value="1 BHK">1 BHK</option>
+                <option value="2 BHK">2 BHK</option>
+                <option value="3 BHK">3 BHK</option>
+                <option value="4 BHK">4 BHK</option>
+                <option value="4+ BHK">4+ BHK</option>
               </select>
             </div>
 
@@ -110,28 +143,32 @@ export default function HomePropertySearch() {
                 Budget
               </label>
 
-              <select className="h-12 w-full rounded-[14px] border border-[#173c30]/15 bg-white px-4 text-sm text-[#173c30] outline-none focus:border-[#08785a]">
-                <option>Any Budget</option>
-                <option>Under ₹50 Lakh</option>
-                <option>₹50L – ₹1Cr</option>
-                <option>₹1Cr – ₹2Cr</option>
-                <option>₹2Cr+</option>
+              <select
+                className="h-12 w-full rounded-[14px] border border-[#173c30]/15 bg-white px-4 text-sm text-[#173c30] outline-none focus:border-[#08785a]"
+                value={filters.budget}
+                onChange={(event) => update("budget", event.target.value)}
+              >
+                <option value="">Any Budget</option>
+                <option value="under-1">Under ₹1 Cr</option>
+                <option value="1-2">₹1–2 Cr</option>
+                <option value="2-4">₹2–4 Cr</option>
+                <option value="4-6">₹4–6 Cr</option>
+                <option value="6-plus">₹6 Cr+</option>
               </select>
             </div>
 
             {/* Search */}
             <div className="flex items-end">
               <button
-                type="button"
+                type="submit"
                 className="flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[#08785a] px-6 text-sm font-bold text-white shadow-[0_8px_20px_rgba(8,120,90,0.20)] transition-all hover:-translate-y-0.5 hover:bg-[#066b50] lg:w-auto"
               >
                 <Icons.Search size={17} />
                 Search
               </button>
             </div>
-
           </div>
-        </div>
+        </form>
       </div>
     </section>
   );

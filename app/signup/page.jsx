@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 
 export default function SignupPage() {
+  const loginVideoUrl = process.env.NEXT_PUBLIC_LOGIN_VIDEO_URL;
+
   const [form, setForm] = useState({
     name: "",
     username: "",
@@ -159,9 +161,11 @@ export default function SignupPage() {
           loop
           playsInline
           preload="metadata"
+          aria-hidden="true"
           id="backgroundVideo"
         >
-          <source src="/login/front-end video.mp4" type="video/mp4" />
+          <source src={loginVideoUrl} type="video/mp4" />
+          Your browser does not support HTML5 video.
         </video>
       </div>
 
