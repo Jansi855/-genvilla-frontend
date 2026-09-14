@@ -10,20 +10,21 @@ const [
   heroSection,
   footer,
   cdkApp,
-] =
-  await Promise.all([
-    readFile(new URL("../Dockerfile", import.meta.url), "utf8"),
-    readFile(
-      new URL("../.github/workflows/deploy-prod.yml", import.meta.url),
-      "utf8",
-    ),
-    readFile(new URL("../app/api-test/page.js", import.meta.url), "utf8"),
-    readFile(new URL("../app/login/page.jsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/signup/page.jsx", import.meta.url), "utf8"),
-    readFile(new URL("../components/HeroSection.jsx", import.meta.url), "utf8"),
-    readFile(new URL("../components/Footer.jsx", import.meta.url), "utf8"),
-    readFile(new URL("../infra/app.js", import.meta.url), "utf8"),
-  ]);
+  ci,
+] = await Promise.all([
+  readFile(new URL("../Dockerfile", import.meta.url), "utf8"),
+  readFile(
+    new URL("../.github/workflows/deploy-prod.yml", import.meta.url),
+    "utf8",
+  ),
+  readFile(new URL("../app/api-test/page.js", import.meta.url), "utf8"),
+  readFile(new URL("../app/login/page.jsx", import.meta.url), "utf8"),
+  readFile(new URL("../app/signup/page.jsx", import.meta.url), "utf8"),
+  readFile(new URL("../components/HeroSection.jsx", import.meta.url), "utf8"),
+  readFile(new URL("../components/Footer.jsx", import.meta.url), "utf8"),
+  readFile(new URL("../infra/app.js", import.meta.url), "utf8"),
+  readFile(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8"),
+]);
 
 assert.match(
   dockerfile,
@@ -39,6 +40,61 @@ assert.match(
   workflow,
   /--build-arg "NEXT_PUBLIC_API_URL=\$NEXT_PUBLIC_API_URL"/,
   "The production workflow should pass the API URL into the image build",
+);
+assert.match(
+  workflow,
+  /docker\/setup-qemu-action@v4/,
+  "The production workflow should install ARM64 emulation",
+);
+assert.match(
+  workflow,
+  /docker\/setup-buildx-action@v4/,
+  "The production workflow should use Docker Buildx",
+);
+assert.match(
+  workflow,
+  /--platform linux\/arm64/,
+  "The production workflow should publish an ARM64 image",
+);
+assert.match(
+  workflow,
+  /configure-aws-credentials@v6\.2\.4/,
+  "The production workflow should use the current AWS credentials action",
+);
+assert.match(
+  ci,
+  /docker\/build-push-action@v7/,
+  "CI should build the production container with the current Docker action",
+);
+assert.match(
+  ci,
+  /platforms: linux\/arm64/,
+  "CI should validate the ARM64 production image",
+);
+assert.match(
+  ci,
+  /branches: \[main, prod\]/,
+  "CI should validate both main and production branches",
+);
+assert.match(
+  ci,
+  /npm run synth --prefix infra/,
+  "CI should strictly synthesize the production infrastructure",
+);
+assert.match(
+  cdkApp,
+  /memoryLimitMiB: 512/,
+  "The frontend task should use its measured 512 MiB memory allocation",
+);
+assert.match(
+  cdkApp,
+  /cpuArchitecture: ecs\.CpuArchitecture\.ARM64/,
+  "The frontend task should run on ARM64 Fargate",
+);
+assert.match(
+  cdkApp,
+  /availabilityZones: \[`\$\{env\.region\}b`, `\$\{env\.region\}c`\]/,
+  "The frontend service should use the load balancer's two availability zones",
 );
 assert.match(
   dockerfile,

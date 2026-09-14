@@ -95,6 +95,10 @@ const prod = new cdk.Stack(app, "GenvillaFrontendProd", {
   terminationProtection: true,
 });
 const vpc = ec2.Vpc.fromLookup(prod, "Vpc", { isDefault: true });
+const workloadSubnets = {
+  subnetType: ec2.SubnetType.PUBLIC,
+  availabilityZones: [`${env.region}b`, `${env.region}c`],
+};
 const cluster = ecs.Cluster.fromClusterAttributes(prod, "Cluster", {
   clusterName: "genvilla-prod",
   vpc,
@@ -114,9 +118,9 @@ sg.addIngressRule(albSg, ec2.Port.tcp(3000));
 const task = new ecs.FargateTaskDefinition(prod, "Task", {
   family: "genvilla-frontend-prod",
   cpu: 256,
-  memoryLimitMiB: 1024,
+  memoryLimitMiB: 512,
   runtimePlatform: {
-    cpuArchitecture: ecs.CpuArchitecture.X86_64,
+    cpuArchitecture: ecs.CpuArchitecture.ARM64,
     operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
   },
 });
@@ -158,7 +162,7 @@ const service = new ecs.FargateService(prod, "Service", {
   taskDefinition: task,
   desiredCount: 1,
   assignPublicIp: true,
-  vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+  vpcSubnets: workloadSubnets,
   securityGroups: [sg],
   minHealthyPercent: 100,
   maxHealthyPercent: 200,
