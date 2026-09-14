@@ -31,12 +31,7 @@ export default function HeroSection() {
         preload="metadata"
         className="absolute inset-0 h-full w-full object-cover"
       >
-        {process.env.NEXT_PUBLIC_PROPERTY_VIDEO_URL && (
-          <source
-            src={process.env.NEXT_PUBLIC_PROPERTY_VIDEO_URL}
-            type="video/mp4"
-          />
-        )}
+        <source src="/hero/property-video.mp4" type="video/mp4" />
       </video>
 
       {/* =====================================================
