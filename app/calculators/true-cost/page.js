@@ -554,9 +554,9 @@ export default function TrueCost() {
 
           {/* CALCULATOR */}
           <section className="rounded-[24px] border border-[#dce8e1] bg-white p-3 shadow-sm md:p-6">
-            <div className="grid items-start gap-6 lg:grid-cols-[1.9fr_.95fr]">
+            <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,.95fr)]">
               {/* LEFT */}
-              <div>
+              <div className="min-w-0">
                 <StepNav step={step} setStep={setStep} />
 
                 <section className="mt-6 rounded-[20px] border border-[#dce8e1] bg-white p-4 shadow-sm md:p-6">
@@ -604,7 +604,7 @@ export default function TrueCost() {
                   )}
 
                   {/* BUTTONS */}
-                  <div className="mt-8 flex items-center justify-between border-t border-[#e3ebe6] pt-5">
+                  <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#e3ebe6] pt-5 sm:flex-row sm:items-center sm:justify-between">
                     <button
                       type="button"
                       disabled={!step}
@@ -617,7 +617,7 @@ export default function TrueCost() {
                     <button
                       type="button"
                       onClick={() => setStep((x) => Math.min(4, x + 1))}
-                      className="inline-flex items-center gap-3 rounded-xl bg-[#087154] px-6 py-3 text-xs font-bold text-white shadow-[0_8px_20px_rgba(8,113,84,0.20)] transition hover:-translate-y-0.5 hover:bg-[#075f47]"
+                      className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#087154] px-6 py-3 text-xs font-bold text-white shadow-[0_8px_20px_rgba(8,113,84,0.20)] transition hover:-translate-y-0.5 hover:bg-[#075f47]"
                     >
                       {step === 4 ? "Review Complete" : "Save & Continue"}
 

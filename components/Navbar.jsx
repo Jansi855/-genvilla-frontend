@@ -150,11 +150,14 @@ export default function Navbar() {
         className="
           mx-auto
           flex
-          h-[92px]
+          h-20
           max-w-[1600px]
           items-center
-          gap-5
-          px-5
+          gap-2
+          px-4
+          sm:h-[92px]
+          sm:gap-5
+          sm:px-5
           lg:px-8
           xl:px-10
         "
@@ -169,6 +172,7 @@ export default function Navbar() {
             group
             mr-auto
             flex
+            min-w-0
             shrink-0
             items-center
           "
@@ -180,11 +184,15 @@ export default function Navbar() {
             height={180}
             priority
             className="
-            h-[75px]
-            w-[420px]
+            h-auto
+            w-[200px]
+            sm:w-[280px]
+            lg:w-[200px]
+            xl:w-[270px]
+            2xl:w-[420px]
             object-contain
             object-left
-            transition-all
+            transition-transform
             duration-300
             ease-out
             group-hover:-translate-y-[2px]
@@ -202,7 +210,7 @@ export default function Navbar() {
             hidden
             items-center
             gap-3
-            lg:flex
+            xl:flex
             xl:gap-5
           "
         >
@@ -665,7 +673,7 @@ export default function Navbar() {
             hidden
             items-center
             gap-3
-            lg:flex
+            xl:flex
           "
         >
           <Link
@@ -749,14 +757,19 @@ export default function Navbar() {
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((value) => !value)}
           className="
-            ml-3
+            ml-2
+
+            flex
+            h-11
+            w-11
+            shrink-0
+            items-center
+            justify-center
 
             rounded-full
 
             border
             border-black/15
-
-            p-2.5
 
             text-[#17231f]
 
@@ -767,7 +780,7 @@ export default function Navbar() {
             hover:border-[#087552]
             hover:text-[#087552]
 
-            lg:hidden
+            xl:hidden
           "
         >
           {mobileOpen ? <X size={21} /> : <Menu size={21} />}
@@ -790,7 +803,7 @@ export default function Navbar() {
           transition-all
           duration-300
 
-          lg:hidden
+          xl:hidden
 
           ${mobileOpen ? "max-h-[950px] opacity-100" : "max-h-0 opacity-0"}
         `}

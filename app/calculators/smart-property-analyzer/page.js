@@ -901,13 +901,13 @@ export default function Page() {
           <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-green/10 blur-3xl" />
           <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-[#d9eade] blur-3xl" />
 
-          <div className="relative mx-auto grid max-w-[1320px] lg:grid-cols-2">
+          <div className="relative mx-auto grid min-w-0 max-w-[1320px] lg:grid-cols-2">
             {/* LEFT */}
-            <div className="spa-fade-up flex flex-col justify-center px-5 py-12 lg:px-10 lg:py-16">
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-green/15 bg-white/80 px-4 py-2">
+            <div className="spa-fade-up flex min-w-0 flex-col justify-center px-5 py-12 lg:px-10 lg:py-16">
+              <div className="inline-flex max-w-full w-fit items-center gap-2 rounded-full border border-green/15 bg-white/80 px-4 py-2">
                 <Sparkles size={14} className="text-green" />
 
-                <span className="text-[9px] font-bold uppercase tracking-[.16em] text-green">
+                <span className="min-w-0 text-[9px] font-bold uppercase leading-4 tracking-[.16em] text-green">
                   One Property · One Financial Picture
                 </span>
               </div>
@@ -959,7 +959,7 @@ export default function Page() {
             </div>
 
             {/* RIGHT IMAGE */}
-            <div className="relative min-h-[430px] overflow-hidden p-6 lg:min-h-[550px] lg:p-8">
+            <div className="relative min-w-0 min-h-[430px] overflow-hidden p-6 lg:min-h-[550px] lg:p-8">
               <img
                 src="/smart-analyzer/property-analyzer-hero.jpg"
                 alt=""
