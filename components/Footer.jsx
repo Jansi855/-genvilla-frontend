@@ -180,15 +180,15 @@ export default function Footer() {
         {/* =========================
             NEWSLETTER + TRUST
         ========================= */}
-        <div className="mt-14 rounded-[26px] border border-emerald-500/20 bg-white/[0.025] p-6">
+        <div className="mt-14 min-w-0 rounded-[26px] border border-emerald-500/20 bg-white/[0.025] p-4 sm:p-6">
           <div className="grid items-center gap-8 xl:grid-cols-[1.05fr_1fr]">
             {/* Newsletter */}
-            <div className="flex flex-col gap-5 md:flex-row md:items-center">
+            <div className="min-w-0 flex flex-col gap-5 md:flex-row md:items-center">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/[0.05]">
                 <Mail size={22} className="text-emerald-400" />
               </div>
 
-              <div className="shrink-0">
+              <div className="min-w-0 md:shrink-0">
                 <p className="font-bold">Stay updated</p>
 
                 <p className="mt-1 max-w-[220px] text-xs leading-5 text-white/45">
@@ -196,7 +196,7 @@ export default function Footer() {
                 </p>
               </div>
 
-              <div className="flex min-w-0 flex-1 overflow-hidden rounded-xl border border-white/10 bg-black/15">
+              <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/10 bg-black/15 sm:flex-row">
                 <input
                   type="email"
                   placeholder="Enter your email"
@@ -205,7 +205,7 @@ export default function Footer() {
 
                 <button
                   type="button"
-                  className="flex items-center gap-2 bg-emerald-600 px-5 text-sm font-bold transition hover:bg-emerald-500"
+                  className="flex min-h-11 items-center justify-center gap-2 bg-emerald-600 px-5 text-sm font-bold transition hover:bg-emerald-500"
                 >
                   Subscribe
                   <ArrowRight size={14} />
@@ -214,7 +214,7 @@ export default function Footer() {
             </div>
 
             {/* Trust */}
-            <div className="grid grid-cols-2 gap-5 border-t border-white/10 pt-7 sm:grid-cols-4 xl:border-l xl:border-t-0 xl:pl-8 xl:pt-0">
+            <div className="min-w-0 grid grid-cols-2 gap-5 border-t border-white/10 pt-7 sm:grid-cols-4 xl:border-l xl:border-t-0 xl:pl-8 xl:pt-0">
               <TrustItem
                 icon={ShieldCheck}
                 title="Trusted Data"

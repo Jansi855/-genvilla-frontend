@@ -72,7 +72,7 @@ export default function EmiCalculatorPage() {
 
   return (
     <main className="min-h-screen bg-[#fbfaf6] text-[#09231f]">
-      <section className="mx-auto max-w-[1360px] px-6 pb-16 pt-6 lg:px-10">
+      <section className="mx-auto max-w-[1360px] px-4 pb-16 pt-6 sm:px-6 lg:px-10">
         {/* Breadcrumb */}
         <div className="mb-8 flex items-center gap-2 text-[13px] text-[#5f6d6a]">
           <span>Home</span>
@@ -94,10 +94,10 @@ export default function EmiCalculatorPage() {
               Home Loan Calculator
             </p>
 
-            <h1 className="hero-title font-serif text-[46px] leading-[0.98] tracking-[-0.02em] text-[#08242d] sm:text-[52px] lg:text-[56px] xl:text-[60px]">
-              <span className="whitespace-nowrap">Plan Your Home Loan</span>
+            <h1 className="hero-title font-serif text-4xl leading-[0.98] tracking-[-0.02em] text-[#08242d] sm:text-[52px] lg:text-[56px] xl:text-[60px]">
+              <span className="sm:whitespace-nowrap">Plan Your Home Loan</span>
               <br />
-              <span className="whitespace-nowrap">With Confidence.</span>
+              <span className="sm:whitespace-nowrap">With Confidence.</span>
             </h1>
 
             <p className="mt-6 max-w-[620px] text-[16px] leading-7 text-[#566764]">
@@ -145,7 +145,7 @@ export default function EmiCalculatorPage() {
           />
 
           {/* Adjustment Tip */}
-          <div className="group ml-auto flex min-w-[320px] items-center gap-4 rounded-[14px] border border-[#d1dfd7] bg-[#f1f8f2] px-5 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#9fc5b4] hover:bg-[#eaf6ed] hover:shadow-lg">
+          <div className="group ml-auto flex w-full min-w-0 items-center gap-4 rounded-[14px] border border-[#d1dfd7] bg-[#f1f8f2] px-5 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#9fc5b4] hover:bg-[#eaf6ed] hover:shadow-lg sm:w-auto sm:min-w-[320px]">
             <Lightbulb size={25} className="shrink-0 text-[#087154]" />
 
             <p className="text-[13px] leading-5 text-[#2e5149]">
@@ -157,9 +157,9 @@ export default function EmiCalculatorPage() {
         </div>
 
         {/* Calculator Grid */}
-        <div className="mt-7 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="mt-7 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
           {/* LEFT CARD */}
-          <div className="rounded-[18px] border border-[#d9dfdc] bg-white p-6 shadow-[0_3px_16px_rgba(0,0,0,0.03)] lg:p-7">
+          <div className="min-w-0 rounded-[18px] border border-[#d9dfdc] bg-white p-5 shadow-[0_3px_16px_rgba(0,0,0,0.03)] sm:p-6 lg:p-7">
             {/* Heading */}
             <div className="group flex cursor-default items-center gap-3 rounded-xl p-2 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-md">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#def4e6] text-[#087154] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#087154] group-hover:text-white">
@@ -262,7 +262,7 @@ export default function EmiCalculatorPage() {
           </div>
 
           {/* RIGHT CARD */}
-          <div className="rounded-[18px] border border-[#d9dfdc] bg-white p-6 shadow-[0_3px_16px_rgba(0,0,0,0.03)] lg:p-7">
+          <div className="min-w-0 rounded-[18px] border border-[#d9dfdc] bg-white p-5 shadow-[0_3px_16px_rgba(0,0,0,0.03)] sm:p-6 lg:p-7">
             {/* EMI Header */}
             <div className="flex justify-between gap-6">
               <div>
