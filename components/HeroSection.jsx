@@ -2,6 +2,9 @@
 import { assetUrl } from "@/lib/assets";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { ANALYSIS_KEY, LOCATION_KEY, ANALYSIS_EVENT, parseAnalysis, writeContext } from "@/utils/latestAnalysis";
+import { normalizeCity, getPropertyLocationPath } from "@/utils/location";
 import {
   ArrowRight,
   BarChart3,
@@ -17,6 +20,28 @@ import {
 const cities = ["Gurugram", "Noida", "Ghaziabad", "Sonipat", "New Delhi"];
 
 export default function HeroSection() {
+  const [analysis, setAnalysis] = useState(null);
+  const [selectedCity, setSelectedCity] = useState('');
+  useEffect(() => {
+    const read = () => {
+      try {
+        setAnalysis(parseAnalysis(window.localStorage.getItem(ANALYSIS_KEY)));
+        const context = JSON.parse(window.localStorage.getItem(LOCATION_KEY) || 'null');
+        setSelectedCity(normalizeCity(context?.city));
+      } catch { setAnalysis(null); setSelectedCity(''); }
+    };
+    read();
+    window.addEventListener('storage', read);
+    window.addEventListener(ANALYSIS_EVENT, read);
+    window.addEventListener('pageshow', read);
+    return () => {
+      window.removeEventListener('storage', read);
+      window.removeEventListener(ANALYSIS_EVENT, read);
+      window.removeEventListener('pageshow', read);
+    };
+  }, []);
+  const metrics = analysis?.metrics;
+  const unavailable = 'Not enough data';
   return (
     <section className="relative min-h-[860px] overflow-hidden">
       {/* =====================================================
@@ -345,13 +370,13 @@ export default function HeroSection() {
                       text-white/50
                     "
                   >
-                    Smart overview of this property.
+                    {analysis ? `Latest completed analysis: ${[analysis.property.locality, analysis.property.city].filter(Boolean).join(', ')}` : 'Analyze a property to see affordability, EMI, rental yield and risk insights.'}
                   </p>
                 </div>
               </div>
 
               {/* INVESTMENT SCORE */}
-              <div
+              {analysis && <div
                 className="
     hidden
     min-w-[165px]
@@ -389,25 +414,18 @@ export default function HeroSection() {
                 </div>
 
                 <div className="mt-2 flex items-end gap-1">
-                  <span className="text-[30px] font-bold leading-none">
-                    8.6
+                  <span className={metrics.investment === null ? 'text-sm font-bold' : 'text-[30px] font-bold leading-none'}>
+                    {metrics.investment === null ? unavailable : (metrics.investment / 10).toFixed(1)}
                   </span>
 
                   <span className="mb-1 text-[10px] font-semibold text-white/55">
-                    /10
+                    {metrics.investment !== null ? '/10' : ''}
                   </span>
                 </div>
 
-                <div className="mt-2 text-[11px] tracking-[2px] text-[#ffd34e]">
-                  ★★★★★
-                </div>
-
-                <p className="mt-1 text-[9px] font-semibold text-[#90e8c4]">
-                  Very Good
-                </p>
-              </div>
+              </div>}
               {/* CHECK */}
-              <div
+              {analysis && <div
                 className="
                   flex
                   h-12
@@ -426,49 +444,49 @@ export default function HeroSection() {
                 "
               >
                 <Check size={22} />
-              </div>
+              </div>}
             </div>
 
             {/* ===============================================
                 METRICS
             ================================================ */}
-            <div className="relative mt-7 space-y-3">
+            {analysis && <div className="relative mt-7 space-y-3">
               <MetricCard
                 icon={WalletCards}
                 title="Affordability"
                 subtitle="How easily this fits your budget"
-                value="82/100"
-                progress={82}
+                value={metrics.affordability === null ? unavailable : `${metrics.affordability}/100`}
+                progress={metrics.affordability ?? undefined}
               />
 
               <MetricCard
                 icon={Building2}
                 title="Rental Yield"
                 subtitle="Estimated annual rental return"
-                value="4.7%"
-                progress={72}
+                value={metrics.rentalYield === null ? unavailable : `${metrics.rentalYield.toFixed(2)}%`}
               />
 
               <MetricCard
                 icon={ShieldCheck}
                 title="Risk Level"
                 subtitle="Overall property risk assessment"
-                value="Low"
-                risk
+                value={metrics.risk || unavailable}
               />
 
               <MetricCard
                 icon={IndianRupee}
                 title="Estimated EMI"
                 subtitle="Estimated monthly loan payment"
-                value="₹72K"
-                extra="/ month"
+                value={metrics.emi === null ? unavailable : `₹${Math.round(metrics.emi).toLocaleString('en-IN')}`}
+                extra={metrics.emi === null ? undefined : '/ month'}
               />
-            </div>
+            </div>}
 
             {/* ===============================================
                 RECOMMENDATION
             ================================================ */}
+            {analysis && <button type="button" className="relative mt-4 text-sm text-white/70 underline hover:text-white" onClick={() => { writeContext(ANALYSIS_KEY, null); setAnalysis(null); }}>Clear latest analysis</button>}
+            {!analysis && selectedCity && <Link className="relative mt-5 inline-block text-sm font-semibold text-white underline" href={`/smart-recommendation?city=${encodeURIComponent(selectedCity)}`}>Get Smart Recommendations</Link>}
             <div
               className="
                 relative
@@ -498,7 +516,7 @@ export default function HeroSection() {
                       text-white/45
                     "
                   >
-                    Recommendation
+                    {analysis ? 'Your saved analysis' : selectedCity ? 'Your selected market' : 'Start your analysis'}
                   </p>
 
                   <div
@@ -509,7 +527,7 @@ export default function HeroSection() {
                       gap-3
                     "
                   >
-                    <span
+                    {analysis && <span
                       className="
                         h-3
                         w-3
@@ -518,7 +536,7 @@ export default function HeroSection() {
                         bg-[#32d99b]
                         shadow-[0_0_12px_rgba(50,217,155,0.8)]
                       "
-                    />
+                    />}
 
                     <h3
                       className="
@@ -527,7 +545,7 @@ export default function HeroSection() {
                         text-[#32d99b]
                       "
                     >
-                      Good Fit
+                      {analysis ? 'Analysis complete' : selectedCity ? `Explore properties in ${selectedCity}` : 'Analyze a Property'}
                     </h3>
                   </div>
 
@@ -540,13 +558,12 @@ export default function HeroSection() {
                       text-white/50
                     "
                   >
-                    Strong match based on affordability, return potential and
-                    risk.
+                    {analysis ? 'Estimates based on the inputs you submitted.' : 'Choose a property and review its financial assumptions to get personalized insights.'}
                   </p>
                 </div>
 
                 <Link
-                  href="/smart-recommendation"
+                  href={selectedCity && !analysis ? getPropertyLocationPath({city: selectedCity}) : '/calculators/smart-property-analyzer'}
                   className="
                     group/button
                     inline-flex
@@ -568,7 +585,7 @@ export default function HeroSection() {
                     hover:shadow-[0_16px_35px_rgba(7,136,94,0.35)]
                   "
                 >
-                  Full Analysis
+                  {selectedCity && !analysis ? 'Explore properties' : 'Analyze a Property'}
                   <ArrowRight
                     size={15}
                     className="
@@ -837,7 +854,7 @@ function MetricCard({
               </p>
             </div>
 
-            <div className="shrink-0 text-right">
+            <div className="min-w-0 max-w-[50%] break-words text-right">
               <p
                 className="
                   text-[19px]

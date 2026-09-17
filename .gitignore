@@ -6,3 +6,9 @@ tmp
 *.mp4
 
 infra/cdk.out/
+
+.env.download
+
+.env.production
+
+

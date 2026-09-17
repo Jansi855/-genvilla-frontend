@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import * as Icons from "lucide-react";
 import LocationAutocomplete from "@/components/location/LocationAutocomplete";
 import { buildPropertySearchUrl } from "@/utils/location";
+import { LOCATION_KEY, writeContext } from "@/utils/latestAnalysis";
 
 const defaults = {
   purpose: "Buy",
@@ -107,6 +108,7 @@ export default function HomePropertySearch() {
                   setFilters((current) => ({ ...current, city: "", locality: "" }));
                 }}
                 onSelect={(location) => {
+                  writeContext(LOCATION_KEY, { city: location.city });
                   setLocationQuery(location.label);
                   setLocationError("");
                   setFilters((current) => ({

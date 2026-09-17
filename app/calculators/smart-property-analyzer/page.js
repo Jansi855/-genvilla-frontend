@@ -18,6 +18,7 @@ import Footer from "@/components/Footer";
 import { money, amountToIndianWords } from "@/utils/currency";
 import { analyzeProperty } from "@/lib/calculators/propertyDecision";
 import LocationAutocomplete from "@/components/location/LocationAutocomplete";
+import { ANALYSIS_KEY, completedAnalysis, writeContext } from "@/utils/latestAnalysis";
 const STEPS = [
   "Property",
   "Financial Profile",
@@ -1072,7 +1073,13 @@ export default function Page() {
                 <button
                   type="button"
                   className="spa-primary-btn inline-flex items-center gap-2 rounded-full bg-[#15352c] px-6 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(21,53,44,0.16)]"
-                  onClick={() => setStep((x) => x + 1)}
+                  onClick={() => {
+                    if (step === 4) {
+                      const summary = completedAnalysis(input, result);
+                      if (summary) writeContext(ANALYSIS_KEY, summary);
+                    }
+                    setStep((x) => x + 1);
+                  }}
                 >
                   {step === 4 ? "View Decision Report" : "Continue"}
 
