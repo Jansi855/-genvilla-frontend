@@ -22,13 +22,15 @@ export default function LocationMap({ location, className = 'h-48' }) {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
+      const tooltip = document.createElement('span');
+      tooltip.textContent = location.label;
       markerRef.current = L.circleMarker([location.latitude, location.longitude], {
         radius: 8,
         color: '#ffffff',
         weight: 3,
         fillColor: '#155f4b',
         fillOpacity: 1,
-      }).addTo(map).bindTooltip(location.label, { permanent: false });
+      }).addTo(map).bindTooltip(tooltip, { permanent: false });
     }
     createMap();
     return () => {
@@ -41,7 +43,9 @@ export default function LocationMap({ location, className = 'h-48' }) {
   useEffect(() => {
     if (!mapRef.current || !markerRef.current) return;
     const coordinates = [location.latitude, location.longitude];
-    markerRef.current.setLatLng(coordinates).setTooltipContent(location.label);
+    const tooltip = document.createElement('span');
+    tooltip.textContent = location.label;
+    markerRef.current.setLatLng(coordinates).setTooltipContent(tooltip);
     mapRef.current.setView(coordinates, location.locality ? 14 : 11, { animate: true });
   }, [location]);
 

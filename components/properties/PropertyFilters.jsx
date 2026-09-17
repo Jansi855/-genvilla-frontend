@@ -14,6 +14,9 @@ export default function PropertyFilters({
   onClear,
   onSearch,
 }) {
+  const locationLabel = filters.locality
+    ? `${filters.locality}, ${filters.city}`
+    : filters.city || filters.query;
   const update = (key, value) =>
     onChange({
       ...filters,
@@ -61,27 +64,31 @@ export default function PropertyFilters({
         {/* LOCATION */}
         <div>
           <LocationAutocomplete
+            inputId="property-location-search"
             label="Location"
-            value={
-              filters.query
-                ? `${filters.query}${filters.city ? `, ${filters.city}` : ""}`
-                : filters.city
-            }
+            value={locationLabel}
             onQueryChange={(query) =>
               onChange({
                 ...filters,
                 query,
                 city: "",
+                locality: "",
               })
             }
             onSelect={(location) =>
               onChange({
                 ...filters,
                 city: location.city,
-                query: location.locality || "",
+                locality: location.locality || "",
+                query: "",
               })
             }
           />
+          {filters.query && !filters.city && (
+            <p className="mt-2 text-xs font-semibold text-red-600" role="alert">
+              Choose a supported location from the suggestions.
+            </p>
+          )}
         </div>
 
         {/* PROPERTY TYPE */}

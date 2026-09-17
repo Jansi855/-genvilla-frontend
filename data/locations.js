@@ -1,3 +1,5 @@
+import { getLocationSlug, normalizeLocationValue } from '@/utils/location';
+
 const locationParents = {
   Gurugram: { state: 'Haryana', district: 'Gurugram', tehsil: 'Gurugram' },
   Ghaziabad: { state: 'Uttar Pradesh', district: 'Ghaziabad', tehsil: 'Ghaziabad' },
@@ -37,6 +39,7 @@ export const locationOptions = [
   place('Murthal', 'Sonipat', 29.0297, 77.0624),
 
   market('Noida', 'Uttar Pradesh', 'Gautam Buddh Nagar', 28.5355, 77.391, ['gautam buddha nagar']),
+  place('Sector 62', 'Noida', 28.628, 77.3649),
   place('Sector 50', 'Noida', 28.5711, 77.3629),
   place('Sector 76', 'Noida', 28.5641, 77.3826),
   place('Sector 137', 'Noida', 28.5094, 77.407),
@@ -54,21 +57,28 @@ export const locationOptions = [
   place('Greater Kailash', 'New Delhi', 28.5494, 77.236),
 ];
 
+const approvedLocalityIds = new Set([
+  'new-delhi-dwarka',
+  'noida-sector-62',
+  'noida-sector-137',
+  'ghaziabad-indirapuram',
+]);
+
 function market(city, state, district, latitude, longitude, aliases = []) {
-  return { id: slug(city), label: city, city, locality: '', state, district, tehsil: city, latitude, longitude, aliases };
+  return { id: slug(city), label: city, city, locality: '', state, district, jurisdiction: city, tehsil: city, latitude, longitude, aliases };
 }
 
 function place(locality, city, latitude, longitude, aliases = []) {
   const parent = locationParents[city];
-  return { id: `${slug(city)}-${slug(locality)}`, label: `${locality}, ${city}`, locality, city, latitude, longitude, aliases, ...parent };
+  return { id: `${slug(city)}-${slug(locality)}`, label: `${locality}, ${city}`, locality, city, jurisdiction: parent.tehsil, latitude, longitude, aliases, ...parent };
 }
 
 function slug(value) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  return getLocationSlug(value).toLowerCase();
 }
 
 function normalize(value) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return normalizeLocationValue(value).toLowerCase();
 }
 
 export function searchLocations(query, limit = 6) {
@@ -95,4 +105,29 @@ export function searchLocations(query, limit = 6) {
 export function findLocation(value) {
   const needle = normalize(value || '');
   return locationOptions.find((location) => normalize(location.label) === needle || normalize(location.id) === needle) || null;
+}
+
+export function findLocationByPath(citySlug, localitySlug = '') {
+  const city = locationOptions.find((location) => !location.locality && slug(location.city) === slug(citySlug));
+
+  if (!city) return null;
+  if (!localitySlug) return city;
+
+  return locationOptions.find((location) => location.city === city.city && slug(location.locality) === slug(localitySlug)) || null;
+}
+
+export function getCityLocations() {
+  return locationOptions.filter((location) => !location.locality);
+}
+
+export function getLocalitiesForCity(city) {
+  return locationOptions.filter((location) => location.city === city && location.locality);
+}
+
+export function isIndexableLocation(location) {
+  return Boolean(location && (!location.locality || approvedLocalityIds.has(location.id)));
+}
+
+export function getIndexableLocations() {
+  return locationOptions.filter(isIndexableLocation);
 }
