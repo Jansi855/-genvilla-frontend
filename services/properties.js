@@ -151,6 +151,17 @@ export function transformProperty(property = {}) {
       textValue(property.project_name) ||
       "Property",
 
+    title: property.project_name || property.title || "Property",
+    location:
+      property.address ||
+      `${property.locality || ""}${city ? `, ${city}` : ""}`,
+    locality: normalizeLocality(property.locality),
+    city,
+    district: property.district || "",
+    state: property.state || "",
+    jurisdiction: property.jurisdiction || property.tehsil || city,
+    type: normalizePropertyType(property.property_type),
+    title: textValue(property.title) || textValue(property.project_name) || "Property",
     projectName: textValue(property.project_name),
 
     location:
@@ -161,18 +172,7 @@ export function transformProperty(property = {}) {
 
     locality,
     city,
-
-    district: textValue(property.district),
-    state: textValue(property.state),
-
-    jurisdiction:
-      textValue(property.jurisdiction) ||
-      textValue(property.tehsil) ||
-      city,
-
-    type: normalizePropertyType(
-      textValue(property.property_type)
-    ),
+    type: normalizePropertyType(textValue(property.property_type)),
     purpose: normalizePurpose(property.transaction_type),
     bedrooms: positiveNumber(property.bedrooms),
     bhk: positiveNumber(property.bedrooms) ? String(Number(property.bedrooms)) : "",
