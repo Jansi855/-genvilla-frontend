@@ -1,3 +1,9 @@
+import {
+  matchesPropertyLocation,
+  normalizeCity as normalizeCanonicalCity,
+  normalizeLocality,
+} from "@/utils/location";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const LISTINGS_PAGE_SIZE = 48;
 
@@ -30,11 +36,7 @@ function formatIndianPrice(amount) {
 }
 
 export function normalizeCity(city) {
-  const value = String(city || "").trim();
-
-  if (/^gurgaon$/i.test(value)) return "Gurugram";
-
-  return value;
+  return normalizeCanonicalCity(city) || String(city || "").trim();
 }
 
 export function normalizePropertyType(propertyType) {
@@ -80,8 +82,11 @@ export function transformProperty(property) {
     location:
       property.address ||
       `${property.locality || ""}${city ? `, ${city}` : ""}`,
-    locality: property.locality || "",
+    locality: normalizeLocality(property.locality),
     city,
+    district: property.district || "",
+    state: property.state || "",
+    jurisdiction: property.jurisdiction || property.tehsil || city,
     type: normalizePropertyType(property.property_type),
     purpose: normalizePurpose(property.transaction_type),
     bedrooms: Number(property.bedrooms) || null,
@@ -126,6 +131,7 @@ export async function getProperties({
   apiUrl = API_URL,
   fetchImpl = fetch,
   signal,
+  filters,
 } = {}) {
   if (!apiUrl) {
     throw new Error("NEXT_PUBLIC_API_URL is not configured");
@@ -155,9 +161,11 @@ export async function getProperties({
     ...new Map(rawListings.map((item) => [item.id, item])).values(),
   ].map(transformProperty);
 
+  const properties = filters ? filterProperties(listings, filters) : listings;
+
   return {
-    properties: listings,
-    total: listings.length,
+    properties,
+    total: properties.length,
     demo: false,
   };
 }
@@ -173,7 +181,6 @@ export function filterProperties(properties, filters = {}) {
   const needle = String(filters.query || "")
     .trim()
     .toLowerCase();
-  const city = normalizeCity(filters.city);
   const results = properties.filter((property) => {
     const matchesSearch =
       !needle ||
@@ -194,7 +201,7 @@ export function filterProperties(properties, filters = {}) {
 
     return (
       (!filters.purpose || property.purpose === filters.purpose) &&
-      (!city || property.city === city) &&
+      matchesPropertyLocation(property, filters) &&
       (!filters.type || property.type === filters.type) &&
       matchesBhk(property, filters.bhk) &&
       (!filters.status || property.status === filters.status) &&

@@ -15,6 +15,7 @@ import RecommendationPreview from "@/components/RecommendationPreview";
 
 import { getHomeData } from "@/services/home";
 import { cities, tools } from "@/data/home";
+import { getPropertyLocationPath } from "@/utils/location";
 
 export default function HomePage() {
   const [city, setCity] = useState(cities[0]);
@@ -38,6 +39,19 @@ export default function HomePage() {
         <HeroSection />
 
         <HomePropertySearch />
+
+        <section className="bg-[#fbfcf9] px-5 pb-8 lg:px-10" aria-labelledby="explore-by-city">
+          <div className="mx-auto max-w-[1280px] rounded-[24px] border border-[#173c30]/10 bg-white px-5 py-5 shadow-sm">
+            <h2 id="explore-by-city" className="font-serif text-2xl text-[#10241e]">Explore properties by city</h2>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {cities.map((cityName) => (
+                <Link className="rounded-full border border-[#173c30]/10 bg-[#f4f1e9] px-4 py-2 text-sm font-bold text-[#173c30]/70 transition hover:border-[#08785a] hover:text-[#08785a]" href={getPropertyLocationPath({city:cityName})} key={cityName}>
+                  {cityName}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* =========================
             EXPLORE PROPERTIES

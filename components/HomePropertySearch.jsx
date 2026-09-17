@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import * as Icons from "lucide-react";
+import LocationAutocomplete from "@/components/location/LocationAutocomplete";
+import { buildPropertySearchUrl } from "@/utils/location";
 
 const defaults = {
   purpose: "Buy",
-  query: "",
+  city: "",
+  locality: "",
   type: "",
   bhk: "",
   budget: "",
@@ -15,16 +18,24 @@ const defaults = {
 export default function HomePropertySearch() {
   const router = useRouter();
   const [filters, setFilters] = useState(defaults);
+  const [locationQuery, setLocationQuery] = useState("");
+  const [locationError, setLocationError] = useState("");
   const update = (key, value) =>
     setFilters((current) => ({ ...current, [key]: value }));
   const submit = (event) => {
     event.preventDefault();
-    const params = new URLSearchParams();
+    if (locationQuery && !filters.city) {
+      setLocationError("Choose a supported city, sector or locality from the suggestions.");
+      return;
+    }
+    const extraFilters = {};
 
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== defaults[key]) params.set(key, value);
+      if (!["city", "locality"].includes(key) && value && value !== defaults[key]) {
+        extraFilters[key] = value;
+      }
     });
-    router.push(`/properties${params.size ? `?${params}` : ""}`);
+    router.push(buildPropertySearchUrl(filters, extraFilters));
   };
 
   return (
@@ -66,7 +77,11 @@ export default function HomePropertySearch() {
 
             <button
               type="button"
-              onClick={() => setFilters({ ...defaults })}
+              onClick={() => {
+                setFilters({ ...defaults });
+                setLocationQuery("");
+                setLocationError("");
+              }}
               className="flex items-center gap-2 text-xs font-semibold text-[#173c30]/50 transition hover:text-[#08785a]"
             >
               <Icons.RotateCcw size={14} />
@@ -82,20 +97,26 @@ export default function HomePropertySearch() {
                 Location
               </label>
 
-              <div className="relative">
-                <Icons.MapPin
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-[#08785a]"
-                />
-
-                <input
-                  type="text"
-                  placeholder="City, sector or locality"
-                  value={filters.query}
-                  onChange={(event) => update("query", event.target.value)}
-                  className="h-12 w-full rounded-[14px] border border-[#173c30]/15 bg-white pl-11 pr-4 text-sm text-[#173c30] outline-none transition focus:border-[#08785a] focus:ring-2 focus:ring-[#08785a]/10"
-                />
-              </div>
+              <LocationAutocomplete
+                label=""
+                value={locationQuery}
+                placeholder="City, sector or locality"
+                onQueryChange={(query) => {
+                  setLocationQuery(query);
+                  setLocationError("");
+                  setFilters((current) => ({ ...current, city: "", locality: "" }));
+                }}
+                onSelect={(location) => {
+                  setLocationQuery(location.label);
+                  setLocationError("");
+                  setFilters((current) => ({
+                    ...current,
+                    city: location.city,
+                    locality: location.locality || "",
+                  }));
+                }}
+              />
+              {locationError && <p className="mt-2 text-xs font-semibold text-red-600" role="alert">{locationError}</p>}
             </div>
 
             {/* Property Type */}

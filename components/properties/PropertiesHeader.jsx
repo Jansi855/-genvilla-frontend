@@ -1,6 +1,6 @@
 import * as Icons from "lucide-react";
 
-export default function PropertiesHeader() {
+export default function PropertiesHeader({ title }) {
   return (
     <>
       {/* =========================
@@ -30,9 +30,7 @@ export default function PropertiesHeader() {
             </p>
 
             <h1 className="mt-4 font-serif text-5xl leading-[1.02] tracking-[-.035em] text-[#102b23] md:text-6xl lg:text-7xl">
-              Find a Property
-              <br />
-              That Fits Your Life
+              {title || <>Find a Property<br />That Fits Your Life</>}
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-7 text-[#173c30]/65 md:text-lg md:leading-8">

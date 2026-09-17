@@ -4,8 +4,17 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, ChevronDown, SlidersHorizontal } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { filterProperties, getProperties } from "@/services/properties";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getProperties } from "@/services/properties";
+import {
+  buildPropertySearchUrl,
+  getLocationLabel,
+  getLocationSlug,
+} from "@/utils/location";
+import {
+  normalizePropertySearchParams,
+  propertySearchDefaults,
+} from "@/utils/propertySearch";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertiesHeader from "./PropertiesHeader";
@@ -14,24 +23,21 @@ import PropertyGrid from "./PropertyGrid";
 import PropertyGridSkeleton from "./PropertyGridSkeleton";
 import PropertyEmptyState from "./PropertyEmptyState";
 
-const defaults = {
-  purpose: "Buy",
-  query: "",
-  city: "",
-  type: "",
-  bhk: "",
-  budget: "",
-  sort: "recommended",
-};
+const defaults = propertySearchDefaults;
 
-export default function PropertiesClient() {
+export default function PropertiesClient({
+  location,
+  initialData,
+  marketCount = null,
+  breadcrumbs,
+  seoContent,
+}) {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchKey = searchParams.toString();
   const urlFilters = useMemo(
-    () => normalizeFilters(new URLSearchParams(searchKey)),
-    [searchKey],
+    () => normalizePropertySearchParams(new URLSearchParams(searchKey), location),
+    [location, searchKey],
   );
   const [draftFilters, setDraftFilters] = useState(urlFilters);
   const [appliedFilters, setAppliedFilters] = useState(urlFilters);
@@ -44,30 +50,35 @@ export default function PropertiesClient() {
   }, [urlFilters]);
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["properties"],
-    queryFn: ({ signal }) => getProperties({ signal }),
+    queryKey: ["properties", appliedFilters],
+    queryFn: ({ signal }) => getProperties({ signal, filters: appliedFilters }),
+    initialData,
+    placeholderData: undefined,
     staleTime: 5 * 60 * 1000,
   });
-  const filteredProperties = useMemo(
-    () => filterProperties(data?.properties || [], appliedFilters),
-    [appliedFilters, data?.properties],
-  );
+  const filteredProperties = data?.properties || [];
   const visible = filteredProperties.slice(0, shown);
+  const locationLabel = getLocationLabel(appliedFilters);
+  const listingTitle = locationLabel
+    ? `Properties for ${appliedFilters.purpose === "Rent" ? "Rent" : "Sale"} in ${locationLabel}`
+    : "Find a Property That Fits Your Life";
 
   const replaceUrl = (filters) => {
-    const next = new URLSearchParams();
+    const nextFilters = {};
 
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== defaults[key]) next.set(key, value);
+      if (!["city", "locality", "query"].includes(key) && value && value !== defaults[key]) {
+        nextFilters[key] = value;
+      }
     });
 
-    const query = next.toString();
-    router.replace(`${pathname}${query ? `?${query}` : ""}`, {
+    router.push(buildPropertySearchUrl(filters, nextFilters), {
       scroll: false,
     });
   };
 
   const apply = (filters) => {
+    if (filters.query && !filters.city) return;
     setDraftFilters(filters);
     setAppliedFilters(filters);
     setShown(6);
@@ -75,13 +86,25 @@ export default function PropertiesClient() {
   };
 
   const clear = () => apply({ ...defaults });
-  const applySort = (sort) => apply({ ...draftFilters, sort });
+  const clearNonLocationFilters = () =>
+    apply({
+      ...defaults,
+      purpose: appliedFilters.purpose,
+      city: appliedFilters.city,
+      locality: appliedFilters.locality,
+    });
+  const applySort = (sort) => apply({ ...appliedFilters, sort });
+  const recommendationParams = new URLSearchParams();
+  if (appliedFilters.city) recommendationParams.set("city", getLocationSlug(appliedFilters.city));
+  if (appliedFilters.locality) recommendationParams.set("locality", getLocationSlug(appliedFilters.locality));
+  const recommendationHref = `/smart-recommendation${recommendationParams.size ? `?${recommendationParams}` : ""}`;
 
   return (
     <>
       <Navbar />
       <main>
-        <PropertiesHeader />
+        {breadcrumbs}
+        <PropertiesHeader title={listingTitle} />
         <section className="bg-cream px-5 py-8 md:py-10 lg:px-10">
           <div className="mx-auto max-w-[1360px]">
             <PropertyFilters
@@ -91,15 +114,22 @@ export default function PropertiesClient() {
               onSearch={() => apply(draftFilters)}
             />
             <div className="mt-8 flex flex-col gap-4 border-y border-ink/10 py-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="font-serif text-2xl" aria-live="polite">
-                {isLoading
-                  ? "Finding properties…"
-                  : `${filteredProperties.length} ${
-                      filteredProperties.length === 1
-                        ? "Property"
-                        : "Properties"
-                    } Found`}
-              </p>
+              <div aria-live="polite">
+                <p className="font-serif text-2xl">
+                  {isLoading
+                    ? "Finding properties…"
+                    : `${filteredProperties.length} ${
+                        filteredProperties.length === 1
+                          ? "property matches"
+                          : "properties match"
+                      } your current filters`}
+                </p>
+                {!isLoading && locationLabel && marketCount !== null && (
+                  <p className="mt-1 text-sm text-ink/50">
+                    {marketCount} {marketCount === 1 ? "property" : "properties"} available for {appliedFilters.purpose === "Rent" ? "rent" : "sale"} in {locationLabel}
+                  </p>
+                )}
+              </div>
               <label className="flex items-center gap-2 text-sm text-ink/60">
                 <span>Sort by</span>
                 <span className="relative">
@@ -150,11 +180,16 @@ export default function PropertiesClient() {
               </>
             ) : (
               <div className="mt-7">
-                <PropertyEmptyState onClear={clear} />
+                <PropertyEmptyState
+                  locationLabel={locationLabel}
+                  onClear={clearNonLocationFilters}
+                  onChangeLocation={() => document.getElementById("property-location-search")?.focus()}
+                />
               </div>
             )}
           </div>
         </section>
+        {seoContent}
         <section className="bg-[#15352c] px-5 py-16 text-white md:py-20 lg:px-10">
           <div className="mx-auto flex max-w-[1360px] flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <div>
@@ -173,9 +208,9 @@ export default function PropertiesClient() {
               </Link>
               <Link
                 className="btn-outline !border-white/30 !text-white"
-                href="/calculators/risk-analysis"
+                href={recommendationHref}
               >
-                Explore smart analysis <ArrowUpRight size={16} />
+                Smart recommendation <ArrowUpRight size={16} />
               </Link>
             </div>
           </div>
@@ -198,23 +233,4 @@ function ErrorState({ onRetry }) {
       </button>
     </div>
   );
-}
-
-function normalizeFilters(params) {
-  const filters = Object.fromEntries(
-    Object.keys(defaults).map((key) => [key, params.get(key) || defaults[key]]),
-  );
-  const homeMode = params.get("mode");
-
-  if (homeMode === "Buy" || homeMode === "Rent") filters.purpose = homeMode;
-  if (["Any type", "Any Property Type"].includes(filters.type))
-    filters.type = "";
-  if (["Any budget", "Any Budget"].includes(filters.budget))
-    filters.budget = "";
-  if (filters.bhk === "Any BHK") filters.bhk = "";
-  if (!["recommended", "price-low", "price-high"].includes(filters.sort)) {
-    filters.sort = "recommended";
-  }
-
-  return filters;
 }

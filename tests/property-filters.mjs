@@ -5,6 +5,11 @@ const source = await readFile(
   new URL("../services/properties.js", import.meta.url),
   "utf8",
 );
+const locationSource = await readFile(
+  new URL("../utils/location.js", import.meta.url),
+  "utf8",
+);
+const locationModule = `data:text/javascript;base64,${Buffer.from(locationSource).toString("base64")}`;
 const {
   filterProperties,
   getProperties,
@@ -12,7 +17,7 @@ const {
   normalizePropertyType,
   normalizePurpose,
 } = await import(
-  `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`
+  `data:text/javascript;base64,${Buffer.from(source.replace('from "@/utils/location"', `from "${locationModule}"`)).toString("base64")}`
 );
 
 const rawListings = [
@@ -92,6 +97,7 @@ assert.deepEqual(requestedPages.sort(), [1, 2, 3]);
 assert.equal(properties.length, 5, "duplicate listing IDs should be removed");
 
 assert.equal(normalizeCity("Gurgaon"), "Gurugram");
+assert.equal(normalizeCity(" new-delhi "), "New Delhi");
 assert.equal(normalizeCity("Ghaziabad"), "Ghaziabad");
 assert.equal(normalizePropertyType("Builder Floor Apartment"), "Builder Floor");
 assert.equal(normalizePropertyType("3 BHK"), "Apartment");
@@ -146,6 +152,27 @@ assert.deepEqual(ids(filterProperties(properties, { query: "kundli" })), [3]);
 assert.deepEqual(
   ids(filterProperties(properties, { city: "Gurugram", bhk: "3 BHK" })),
   [1],
+);
+assert.deepEqual(
+  ids(filterProperties(properties, {
+    city: "Ghaziabad",
+    locality: "Indirapuram",
+    purpose: "Buy",
+    type: "Builder Floor",
+    bhk: "2 BHK",
+    budget: "1-2",
+  })),
+  [2],
+  "location and every active property filter should combine with AND semantics",
+);
+assert.deepEqual(
+  ids(filterProperties(properties, { city: "Noida", locality: "sector-150" })),
+  [4],
+);
+assert.deepEqual(
+  ids(filterProperties(properties, { city: "Gurugram", locality: "Sector 150" })),
+  [],
+  "locality must never match without its selected city",
 );
 
 assert.deepEqual(

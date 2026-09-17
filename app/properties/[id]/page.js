@@ -1,32 +1,104 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 import { ArrowLeft, ArrowUpRight, MapPin, ShieldCheck, TrendingUp } from 'lucide-react';
 import { getPropertyById } from '@/services/properties';
+import { findLocationByPath } from '@/data/locations';
+import { getPropertyLocationPath } from '@/utils/location';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import LocationLanding, { getLocationPageMetadata } from '@/components/properties/LocationLanding';
 
-export default async function PropertyDetailPage({ params }) {
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://genvilla.in';
+const getCachedProperty = cache(getPropertyById);
+
+export async function generateMetadata({ params, searchParams }) {
   const { id } = await params;
+  const location = findLocationByPath(id);
+  if (location) return getLocationPageMetadata(location, await searchParams);
 
-  const property = await getPropertyById(id);
+  const property = await getCachedProperty(id);
+  if (!property) return {};
+  const locationLabel = [property.locality, property.city].filter(Boolean).join(', ');
+  const bhk = property.bhk ? `${property.bhk} BHK ` : '';
+  const intent = property.purpose === 'Rent' ? 'Rent' : 'Sale';
+
+  return {
+    title: `${bhk}${property.type} for ${intent} in ${locationLabel} | GenVilla`,
+    description: `Explore this ${bhk}${property.type.toLowerCase()} for ${intent.toLowerCase()} in ${locationLabel}. View its price, area, location and GenVilla property analysis tools.`,
+    alternates: { canonical: `${SITE_URL}/properties/${property.id}` },
+  };
+}
+
+export default async function PropertyDetailPage({ params, searchParams }) {
+  const { id } = await params;
+  const locationPage = findLocationByPath(id);
+  if (locationPage) return <LocationLanding location={locationPage} searchParams={searchParams} />;
+
+  const property = await getCachedProperty(id);
 
   if (!property) notFound();
+  const cityPath = getPropertyLocationPath({ city: property.city });
+  const localityPath = getPropertyLocationPath({ city: property.city, locality: property.locality });
+  const supportedLocality = property.locality
+    ? findLocationByPath(property.city, property.locality)
+    : null;
+  const imageAlt = `${property.bhk ? `${property.bhk} BHK ` : ''}${property.type.toLowerCase()} in ${[property.locality, property.city].filter(Boolean).join(', ')}`;
+  const propertySchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Place',
+    name: property.title,
+    image: property.image,
+    url: `${SITE_URL}/properties/${property.id}`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: property.locality,
+      addressRegion: property.city,
+      addressCountry: 'IN',
+    },
+    ...(property.priceValue ? { offers: { '@type': 'Offer', price: property.priceValue, priceCurrency: 'INR' } } : {}),
+  };
+  const breadcrumbEntries = [
+    ['Home', '/'],
+    ['Properties', '/properties'],
+    [property.city, cityPath],
+    ...(supportedLocality ? [[property.locality, localityPath]] : []),
+    [property.title, `/properties/${property.id}`],
+  ];
+  const structuredData = [
+    propertySchema,
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumbEntries.map(([name, href], index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name,
+        item: `${SITE_URL}${href}`,
+      })),
+    },
+  ];
 
   return (
     <>
       <Navbar />
 
       <main className="bg-cream">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(structuredData).replace(/</g, '\\u003c')}} />
         <div className="mx-auto max-w-[1360px] px-5 py-8 lg:px-10">
 
-          {/* Back Button */}
-          <Link
-            href="/properties"
-            className="inline-flex items-center gap-2 text-sm font-bold text-green"
-          >
-            <ArrowLeft size={16} />
-            Back to properties
-          </Link>
+          <nav aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-2 text-sm font-bold text-green">
+              <li><Link href="/"><ArrowLeft className="inline" size={16}/> Home</Link></li>
+              <li aria-hidden="true">›</li>
+              <li><Link href="/properties">Properties</Link></li>
+              <li aria-hidden="true">›</li>
+              <li><Link href={cityPath}>{property.city}</Link></li>
+              {supportedLocality && <><li aria-hidden="true">›</li><li><Link href={localityPath}>{property.locality}</Link></li></>}
+              <li aria-hidden="true">›</li>
+              <li aria-current="page" className="text-ink/55">{property.title}</li>
+            </ol>
+          </nav>
 
           <div className="mt-6 grid gap-8 lg:grid-cols-[1.35fr_.65fr]">
 
@@ -50,7 +122,7 @@ export default async function PropertyDetailPage({ params }) {
                 {/* Main Image */}
                 <img
                   src={property.image}
-                  alt={`${property.title} property`}
+                  alt={imageAlt}
                   className="relative z-10 h-full w-full object-contain"
                 />
 
