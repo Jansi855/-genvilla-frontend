@@ -145,7 +145,6 @@ export function transformProperty(property = {}) {
 
   return {
     id: property.id,
-<<<<<<< HEAD
     title: property.project_name || property.title || "Property",
     location:
       property.address ||
@@ -156,7 +155,6 @@ export function transformProperty(property = {}) {
     state: property.state || "",
     jurisdiction: property.jurisdiction || property.tehsil || city,
     type: normalizePropertyType(property.property_type),
-=======
     title: textValue(property.title) || textValue(property.project_name) || "Property",
     projectName: textValue(property.project_name),
     location: [locality, city].filter(Boolean).join(", ") || textValue(property.address),
@@ -164,7 +162,6 @@ export function transformProperty(property = {}) {
     locality,
     city,
     type: normalizePropertyType(textValue(property.property_type)),
->>>>>>> 1712d91 (Update property listing and property details UI)
     purpose: normalizePurpose(property.transaction_type),
     bedrooms: positiveNumber(property.bedrooms),
     bhk: positiveNumber(property.bedrooms) ? String(Number(property.bedrooms)) : "",
