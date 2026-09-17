@@ -18,7 +18,7 @@ const budgetRanges = {
 function formatIndianPrice(amount) {
   const value = Number(amount);
 
-  if (!value) return "Price on request";
+  if (!Number.isFinite(value) || value <= 0) return "Price on request";
 
   if (value >= 10000000) {
     const crore = value / 10000000;
@@ -70,14 +70,82 @@ function normalizeStatus(status) {
   return String(status || "");
 }
 
-export function transformProperty(property) {
-  const priceValue = property.price_paise ? property.price_paise / 100 : 0;
-  const city = normalizeCity(property.city);
-  const areaValue =
-    property.builtup_area_sqft || property.carpet_area_sqft || 0;
+// Scraped defaults are not property facts. Keep this boundary shared by cards
+// and details, and never forward raw payloads or restricted contact data.
+function textValue(value) {
+  if (typeof value !== "string") return "";
+  const text = value.trim();
+  return /^(string|null|undefined|nan|n\/?a|none|unknown|not available|0|-)$/i.test(text) ? "" : text;
+}
+
+function positiveNumber(value) {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+export function safePropertyUrl(value) {
+  const text = textValue(value);
+  try {
+    const url = new URL(text);
+    return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+export function getPropertyImages(property) {
+  const images = Array.isArray(property.images) ? property.images : [];
+  const valid = [...new Set(images.map(safePropertyUrl).filter(Boolean))];
+  const primary = safePropertyUrl(property.image_url);
+  return valid.length ? valid : primary ? [primary] : [];
+}
+
+export function formatPropertyArea(value) {
+  const area = positiveNumber(value);
+  return area ? `${area.toLocaleString("en-IN")} sq.ft.` : "";
+}
+
+export function formatPropertyFloor(floor, total) {
+  const number = positiveNumber(floor);
+  const floors = positiveNumber(total);
+  // Zero is an ambiguous scraper default, not evidence of a ground floor.
+  return number ? `${number}${floors ? ` (out of ${floors})` : ""}` : "";
+}
+
+function publicContact(property) {
+  if (textValue(property.contact_access).toLowerCase() !== "public") return null;
+  const value = textValue(property.public_contact);
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    return { value, email: value };
+  }
+  const phone = value.replace(/[\s().-]/g, "");
+  return /^\+?\d{7,15}$/.test(phone) ? { value, phone } : null;
+}
+
+export function transformProperty(property = {}) {
+  if (!property || typeof property !== "object" || Array.isArray(property)) property = {};
+  const priceValue = (positiveNumber(property.price_paise) || 0) / 100;
+  const pricePerSqft = (positiveNumber(property.price_per_sqft_paise) || 0) / 100;
+  const city = normalizeCity(textValue(property.city));
+  const locality = textValue(property.locality);
+  const builtupArea = positiveNumber(property.builtup_area_sqft);
+  const carpetArea = positiveNumber(property.carpet_area_sqft);
+  const areaValue = builtupArea || carpetArea || 0;
+  const images = getPropertyImages(property);
+  const latitude = typeof property.latitude === "number" || typeof property.latitude === "string" ? Number(property.latitude) : NaN;
+  const longitude = typeof property.longitude === "number" || typeof property.longitude === "string" ? Number(property.longitude) : NaN;
+  const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude) &&
+    latitude !== 0 && longitude !== 0 && Math.abs(latitude) <= 90 && Math.abs(longitude) <= 180;
+  const postedAt = textValue(property.posted_at);
+  const validDate = postedAt && Number.isFinite(Date.parse(postedAt));
+  const amenities = Array.isArray(property.amenities)
+    ? [...new Set(property.amenities.map((item) => textValue(typeof item === "string" ? item : item?.name)).filter(Boolean))]
+    : [];
 
   return {
     id: property.id,
+<<<<<<< HEAD
     title: property.project_name || property.title || "Property",
     location:
       property.address ||
@@ -88,23 +156,53 @@ export function transformProperty(property) {
     state: property.state || "",
     jurisdiction: property.jurisdiction || property.tehsil || city,
     type: normalizePropertyType(property.property_type),
+=======
+    title: textValue(property.title) || textValue(property.project_name) || "Property",
+    projectName: textValue(property.project_name),
+    location: [locality, city].filter(Boolean).join(", ") || textValue(property.address),
+    address: textValue(property.address),
+    locality,
+    city,
+    type: normalizePropertyType(textValue(property.property_type)),
+>>>>>>> 1712d91 (Update property listing and property details UI)
     purpose: normalizePurpose(property.transaction_type),
-    bedrooms: Number(property.bedrooms) || null,
-    bhk: property.bedrooms ? String(property.bedrooms) : "",
+    bedrooms: positiveNumber(property.bedrooms),
+    bhk: positiveNumber(property.bedrooms) ? String(Number(property.bedrooms)) : "",
+    builtupArea,
+    carpetArea,
+    areaLabel: builtupArea ? "Built-up area" : carpetArea ? "Carpet area" : "Area",
     areaValue,
     area: areaValue,
     priceValue,
     price: formatIndianPrice(priceValue),
-    image: property.image_url || "/properties/property-placeholder.jpg",
-    furnishing: property.furnishing || "",
-    bathrooms: property.bathrooms || null,
-    balconies: property.balconies || null,
-    status: normalizeStatus(property.possession_status),
+    pricePerSqft: pricePerSqft ? `₹${Math.round(pricePerSqft).toLocaleString("en-IN")} / sq.ft.` : "",
+    images,
+    image: images[0] || "",
+    furnishing: textValue(property.furnishing),
+    bathrooms: positiveNumber(property.bathrooms),
+    balconies: positiveNumber(property.balconies),
+    status: normalizeStatus(textValue(property.possession_status)),
     risk: "Not assessed",
     roiValue: null,
     roi: "—",
-    transactionType: property.transaction_type || "",
-    postedAt: property.posted_at || null,
+    transactionType: textValue(property.transaction_type),
+    postedAt: validDate ? postedAt : null,
+    listedOn: validDate ? new Date(postedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : "",
+    floor: formatPropertyFloor(property.floor_number, property.total_floors),
+    facing: textValue(property.facing),
+    parking: textValue(property.parking),
+    ownership: textValue(property.ownership_type),
+    propertyAge: positiveNumber(property.property_age_years),
+    description: textValue(property.description),
+    sellerName: textValue(property.seller_name),
+    sellerType: textValue(property.seller_type),
+    contact: publicContact(property),
+    listingId: textValue(property.listing_key) || textValue(property.external_id) || String(property.id ?? ""),
+    listingUrl: safePropertyUrl(property.listing_url),
+    publisher: textValue(property.publisher),
+    jurisdiction: textValue(property.jurisdiction),
+    coordinates: hasCoordinates ? { latitude, longitude } : null,
+    amenities,
   };
 }
 
@@ -186,6 +284,8 @@ export function filterProperties(properties, filters = {}) {
       !needle ||
       [
         property.title,
+        property.projectName,
+        property.address,
         property.location,
         property.locality,
         property.city,
@@ -220,10 +320,13 @@ export function filterProperties(properties, filters = {}) {
     : results;
 }
 
-export async function getPropertyById(id) {
-  const response = await fetch(`${API_URL}/api/listings/${id}`, {
+export async function getPropertyById(id, { apiUrl = API_URL, fetchImpl = fetch, signal } = {}) {
+  if (!/^[a-zA-Z0-9_-]+$/.test(String(id || ""))) return null;
+  if (!apiUrl) throw new Error("Property service is unavailable");
+  const response = await fetchImpl(`${apiUrl}/api/listings/${encodeURIComponent(id)}`, {
     method: "GET",
     headers: { Accept: "application/json" },
+    signal,
   });
 
   if (!response.ok) {
@@ -232,5 +335,7 @@ export async function getPropertyById(id) {
     throw new Error(`Failed to fetch property: ${response.status}`);
   }
 
-  return transformProperty(await response.json());
+  const property = await response.json();
+  if (!property || typeof property !== "object" || Array.isArray(property) || property.id == null) return null;
+  return transformProperty(property);
 }

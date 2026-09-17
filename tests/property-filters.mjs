@@ -16,6 +16,8 @@ const {
   normalizeCity,
   normalizePropertyType,
   normalizePurpose,
+  transformProperty,
+  getPropertyById,
 } = await import(
   `data:text/javascript;base64,${Buffer.from(source.replace('from "@/utils/location"', `from "${locationModule}"`)).toString("base64")}`
 );
@@ -187,6 +189,76 @@ assert.deepEqual(
 console.log(
   "Property pagination, normalization, filter, and sort tests passed.",
 );
+
+const imageUrls = Array.from({ length: 16 }, (_, i) => `https://images.example.test/${i}.jpg`);
+const complete = transformProperty({
+  id: 90, title: "2 BHK Apartment", project_name: "Project name", city: "Gurgaon", locality: "Sector 89",
+  builtup_area_sqft: "1196", carpet_area_sqft: 850, price_paise: 1600000000,
+  price_per_sqft_paise: 1337700, bedrooms: 2, bathrooms: 2, balconies: 1,
+  floor_number: 5, total_floors: 14, facing: "East", parking: "Covered", ownership_type: "Freehold",
+  property_age_years: 4, furnishing: "Semi furnished", possession_status: "READY",
+  posted_at: "2026-09-16T18:31:06.100Z", description: "Description. ".repeat(200),
+  seller_name: "Listed seller", seller_type: "Individual", contact_access: "public", public_contact: "+91 99999 00000",
+  latitude: 28.45, longitude: 77.03, images: [...imageUrls, imageUrls[0], "", null, "javascript:alert(1)", {}],
+  image_url: "https://images.example.test/primary.jpg", raw_data: "PRIVATE_RAW", source_fetch_id: 999,
+});
+assert.equal(complete.title, "2 BHK Apartment");
+assert.equal(complete.projectName, "Project name");
+assert.equal(complete.location, "Sector 89, Gurugram");
+assert.equal(complete.price, "₹1.6 Cr");
+assert.equal(complete.pricePerSqft, "₹13,377 / sq.ft.");
+assert.equal(complete.builtupArea, 1196);
+assert.equal(complete.carpetArea, 850);
+assert.equal(complete.floor, "5 (out of 14)");
+assert.equal(complete.images.length, 16);
+assert.equal(complete.image, imageUrls[0]);
+assert.equal(complete.contact.phone, "+919999900000");
+assert.deepEqual(complete.coordinates, { latitude: 28.45, longitude: 77.03 });
+assert.equal(complete.listedOn, "16 Sept 2026");
+assert.ok(complete.description.length > 650);
+assert.equal("raw_data" in complete, false);
+assert.equal("source_fetch_id" in complete, false);
+assert.deepEqual(ids(filterProperties([complete], { query: "Project name" })), [90]);
+
+for (const access of ["private", "restricted", "login_required", "unknown", "", null, "not_public"]) {
+  const property = transformProperty({ id: 1, public_contact: "9999900000", contact_access: access });
+  assert.equal(property.contact, null, `Contact must stay private for ${access}`);
+  assert.ok(!JSON.stringify(property).includes("9999900000"));
+}
+assert.equal(transformProperty({ contact_access: "public", public_contact: "javascript:alert(1)" }).contact, null);
+assert.equal(transformProperty({ contact_access: "public", public_contact: "person@example.test" }).contact.email, "person@example.test");
+assert.deepEqual(transformProperty({ images: ["", "bad"], image_url: imageUrls[0] }).images, [imageUrls[0]]);
+assert.deepEqual(transformProperty({ images: [imageUrls[0], imageUrls[0]] }).images, [imageUrls[0]]);
+assert.deepEqual(transformProperty({ images: "not-an-array", image_url: "javascript:alert(1)" }).images, []);
+assert.equal(transformProperty({ builtup_area_sqft: 1200 }).areaLabel, "Built-up area");
+assert.equal(transformProperty({ carpet_area_sqft: 850 }).areaLabel, "Carpet area");
+assert.equal(transformProperty({ title: "string", project_name: "Real project" }).title, "Real project");
+assert.equal(transformProperty({ title: "Long title ".repeat(100) }).title.length, 1099);
+assert.equal(transformProperty({ latitude: 91, longitude: 77 }).coordinates, null);
+assert.equal(transformProperty({ latitude: 28, longitude: 181 }).coordinates, null);
+
+const empty = transformProperty({
+  id: 5, bedrooms: 0, bathrooms: 0, balconies: 0, builtup_area_sqft: 0, carpet_area_sqft: 0,
+  price_paise: "NaN", price_per_sqft_paise: -5, floor_number: 0, total_floors: 0,
+  property_age_years: 0, latitude: 0, longitude: 0, furnishing: "string", posted_at: "invalid",
+  description: null, seller_name: "N/A", image_count: 25, listing_url: "javascript:alert(1)",
+});
+assert.equal(empty.price, "Price on request");
+assert.equal(empty.pricePerSqft, "");
+for (const field of ["bedrooms", "bathrooms", "balconies", "builtupArea", "carpetArea", "propertyAge", "coordinates", "contact"]) assert.equal(empty[field], null, field);
+for (const field of ["floor", "furnishing", "description", "sellerName", "listedOn", "listingUrl"]) assert.equal(empty[field], "", field);
+assert.deepEqual(empty.images, []);
+assert.deepEqual(empty.amenities, []);
+assert.equal(transformProperty({ price_paise: Infinity }).price, "Price on request");
+assert.equal(transformProperty({ bedrooms: true }).bedrooms, null);
+
+assert.equal(await getPropertyById("../bad", { fetchImpl: () => { throw new Error("Invalid ID should not fetch"); } }), null);
+assert.equal(await getPropertyById(1, { apiUrl: "https://example.test", fetchImpl: async () => ({ ok: false, status: 404 }) }), null);
+await assert.rejects(getPropertyById(1, { apiUrl: "https://example.test", fetchImpl: async () => ({ ok: false, status: 500 }) }));
+await assert.rejects(getPropertyById(1, { apiUrl: "https://example.test", fetchImpl: async () => { throw new Error("Network offline"); } }));
+assert.equal(await getPropertyById(1, { apiUrl: "https://example.test", fetchImpl: async () => ({ ok: true, json: async () => null }) }), null);
+assert.equal((await getPropertyById(1, { apiUrl: "https://example.test", fetchImpl: async () => ({ ok: true, json: async () => ({ id: 1, title: "Detail" }) }) })).title, "Detail");
+console.log("Rich property data, image collections, contact privacy and detail error tests passed.");
 
 function listing(id, overrides) {
   return {
