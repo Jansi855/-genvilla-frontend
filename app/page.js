@@ -1,7 +1,6 @@
 "use client";
 import { assetUrl } from "@/lib/assets";
 
-import HomePropertySearch from "@/components/HomePropertySearch";
 import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -37,8 +36,6 @@ export default function HomePage() {
         ========================= */}
 
         <HeroSection />
-
-        <HomePropertySearch />
 
         <section className="bg-[#fbfcf9] px-5 pb-8 lg:px-10" aria-labelledby="explore-by-city">
           <div className="mx-auto max-w-[1280px] rounded-[24px] border border-[#173c30]/10 bg-white px-5 py-5 shadow-sm">

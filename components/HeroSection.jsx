@@ -2,6 +2,7 @@
 import { assetUrl } from "@/lib/assets";
 
 import Link from "next/link";
+import HomePropertySearch from "@/components/HomePropertySearch";
 import { useEffect, useState } from "react";
 import { ANALYSIS_KEY, LOCATION_KEY, ANALYSIS_EVENT, parseAnalysis, writeContext } from "@/utils/latestAnalysis";
 import { normalizeCity, getPropertyLocationPath } from "@/utils/location";
@@ -43,7 +44,7 @@ export default function HeroSection() {
   const metrics = analysis?.metrics;
   const unavailable = 'Not enough data';
   return (
-    <section className="relative min-h-[860px] overflow-hidden">
+    <section className="relative isolate">
       {/* =====================================================
           BACKGROUND VIDEO
       ====================================================== */}
@@ -102,22 +103,21 @@ export default function HeroSection() {
           z-10
           mx-auto
           grid
-          min-h-[730px]
           max-w-[1450px]
           items-center
-          gap-16
+          gap-8
           px-6
-          pb-16
-          pt-16
-          lg:grid-cols-[0.9fr_1.1fr]
+          pb-12
+          pt-10
+          lg:grid-cols-[1.15fr_1fr]
           lg:px-10
-          xl:gap-24
+          xl:gap-12
         "
       >
         {/* ===================================================
             LEFT CONTENT
         ==================================================== */}
-        <div className="max-w-[690px]">
+        <div className="min-w-0 max-w-[690px]">
           {/* TOP BADGE */}
           <div
             className="
@@ -158,29 +158,25 @@ export default function HeroSection() {
             className="
               max-w-[650px]
               font-serif
-              text-[48px]
-              leading-[0.98]
+              text-[36px]
+              leading-[1.08]
               tracking-[-0.035em]
               text-white
-              sm:text-[58px]
-              lg:text-[64px]
-              xl:text-[72px]
+              sm:text-[44px]
+              lg:text-[48px]
+              xl:text-[54px]
             "
           >
-            Find the right
-            <br />
-            property.
+            Find the right property.
             <span className="mt-2 block text-[#a4e3ca]">
-              Make the right
-              <br />
-              decision.
+              Make the right decision.
             </span>
           </h1>
 
           {/* DESCRIPTION */}
           <p
             className="
-              mt-8
+              mt-5
               max-w-[620px]
               text-[16px]
               leading-7
@@ -193,9 +189,9 @@ export default function HeroSection() {
           </p>
 
           {/* BUTTONS */}
-          <div className="mt-9 flex flex-wrap gap-4">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/properties"
+              href="#hero-property-search"
               className="
                 group
                 inline-flex
@@ -679,6 +675,10 @@ export default function HeroSection() {
         </div>
       </div>
 
+      <div className="relative z-30 mx-auto max-w-[1450px] px-4 pb-5 sm:px-6 lg:px-10">
+        <HomePropertySearch />
+      </div>
+
       {/* =====================================================
           CITY BAR
       ====================================================== */}
@@ -710,7 +710,7 @@ export default function HeroSection() {
           {cities.map((city) => (
             <Link
               key={city}
-              href={`/properties?city=${encodeURIComponent(city)}`}
+              href={getPropertyLocationPath({ city })}
               className="
                 group/city
                 flex

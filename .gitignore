@@ -11,4 +11,4 @@ infra/cdk.out/
 
 .env.production
 
-
+.env.local
