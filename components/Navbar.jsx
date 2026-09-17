@@ -677,7 +677,7 @@ export default function Navbar() {
           "
         >
           <Link
-            href="/signin"
+            href="/login"
             className="
               whitespace-nowrap
 
@@ -926,7 +926,7 @@ export default function Navbar() {
             "
           >
             <Link
-              href="/signin"
+              href="/login"
               onClick={() => setMobileOpen(false)}
               className="
                 flex
