@@ -145,26 +145,34 @@ export function transformProperty(property = {}) {
 
   return {
     id: property.id,
-<<<<<<< HEAD
-    title: property.project_name || property.title || "Property",
-    location:
-      property.address ||
-      `${property.locality || ""}${city ? `, ${city}` : ""}`,
-    locality: normalizeLocality(property.locality),
-    city,
-    district: property.district || "",
-    state: property.state || "",
-    jurisdiction: property.jurisdiction || property.tehsil || city,
-    type: normalizePropertyType(property.property_type),
-=======
-    title: textValue(property.title) || textValue(property.project_name) || "Property",
+
+    title:
+      textValue(property.title) ||
+      textValue(property.project_name) ||
+      "Property",
+
     projectName: textValue(property.project_name),
-    location: [locality, city].filter(Boolean).join(", ") || textValue(property.address),
+
+    location:
+      [locality, city].filter(Boolean).join(", ") ||
+      textValue(property.address),
+
     address: textValue(property.address),
+
     locality,
     city,
-    type: normalizePropertyType(textValue(property.property_type)),
->>>>>>> 1712d91 (Update property listing and property details UI)
+
+    district: textValue(property.district),
+    state: textValue(property.state),
+
+    jurisdiction:
+      textValue(property.jurisdiction) ||
+      textValue(property.tehsil) ||
+      city,
+
+    type: normalizePropertyType(
+      textValue(property.property_type)
+    ),
     purpose: normalizePurpose(property.transaction_type),
     bedrooms: positiveNumber(property.bedrooms),
     bhk: positiveNumber(property.bedrooms) ? String(Number(property.bedrooms)) : "",
@@ -200,7 +208,6 @@ export function transformProperty(property = {}) {
     listingId: textValue(property.listing_key) || textValue(property.external_id) || String(property.id ?? ""),
     listingUrl: safePropertyUrl(property.listing_url),
     publisher: textValue(property.publisher),
-    jurisdiction: textValue(property.jurisdiction),
     coordinates: hasCoordinates ? { latitude, longitude } : null,
     amenities,
   };
