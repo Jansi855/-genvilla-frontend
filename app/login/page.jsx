@@ -2,7 +2,7 @@
 
 import "./login.css";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 
 import {
@@ -40,6 +40,7 @@ export default function LoginPage() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const submittingRef = useRef(false);
 
   // =========================
   // INPUT CHANGE
@@ -91,7 +92,7 @@ export default function LoginPage() {
   // VALIDATION
   // =========================
 
-  function validateForm() {
+  function validateForm(formElement) {
     const newErrors = {
       identifier: "",
       password: "",
@@ -126,6 +127,10 @@ export default function LoginPage() {
     }
 
     setErrors(newErrors);
+    const firstInvalid = Object.keys(newErrors).find(
+      (field) => newErrors[field],
+    );
+    if (firstInvalid) formElement.elements.namedItem(firstInvalid)?.focus();
 
     return !newErrors.identifier && !newErrors.password;
   }
@@ -136,16 +141,18 @@ export default function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submittingRef.current) return;
 
     setMessage({
       text: "",
       type: "",
     });
 
-    if (!validateForm()) {
+    if (!validateForm(event.currentTarget)) {
       return;
     }
 
+    submittingRef.current = true;
     setIsLoading(true);
 
     try {
@@ -155,16 +162,12 @@ export default function LoginPage() {
         localStorage.removeItem("genvillaRememberedEmail");
       }
 
-      // ==========================================
-      // FRONTEND ONLY
-      // REAL AUTH API WILL BE CONNECTED LATER
-      // ==========================================
-
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      // Connect the real auth request here when the provider is configured.
+      // Until then, do not simulate a request, session, or successful login.
 
       setMessage({
-        text: "Login authentication will be connected to GenVilla soon.",
-        type: "success",
+        text: "Sign-in is not available yet. Please try again once GenVilla authentication is enabled.",
+        type: "info",
       });
     } catch (error) {
       setMessage({
@@ -172,6 +175,7 @@ export default function LoginPage() {
         type: "error",
       });
     } finally {
+      submittingRef.current = false;
       setIsLoading(false);
     }
   }
@@ -182,7 +186,7 @@ export default function LoginPage() {
           VIDEO BACKGROUND
       ========================== */}
 
-      <div className="video-background">
+      <div className="video-background auth-background">
         <video
           autoPlay
           muted
@@ -203,7 +207,7 @@ export default function LoginPage() {
           LOGIN PAGE
       ========================== */}
 
-      <main className="login-page premium-login-page">
+      <main className="login-page premium-login-page auth-polish">
         <div className="login-container">
           {/* =========================
               LEFT PANEL
@@ -329,10 +333,16 @@ export default function LoginPage() {
                   <small>Choose how you want to log in</small>
                 </div>
 
-                <div className="login-identifier-selector">
+                <div
+                  className="login-identifier-selector"
+                  role="group"
+                  aria-label="Sign in using"
+                >
                   <button
                     type="button"
                     onClick={() => handleIdentifierType("EMAIL")}
+                    aria-pressed={identifierType === "EMAIL"}
+                    disabled={isLoading}
                     className={`login-identifier-btn ${
                       identifierType === "EMAIL" ? "active" : ""
                     }`}
@@ -343,6 +353,8 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => handleIdentifierType("USERNAME")}
+                    aria-pressed={identifierType === "USERNAME"}
+                    disabled={isLoading}
                     className={`login-identifier-btn ${
                       identifierType === "USERNAME" ? "active" : ""
                     }`}
@@ -356,7 +368,7 @@ export default function LoginPage() {
                   LOGIN FORM
               ========================== */}
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate aria-busy={isLoading}>
                 {/* IDENTIFIER */}
 
                 <div className="input-group">
@@ -371,6 +383,9 @@ export default function LoginPage() {
                       type={identifierType === "EMAIL" ? "email" : "text"}
                       id="identifier"
                       name="identifier"
+                      aria-invalid={Boolean(errors.identifier)}
+                      aria-describedby="identifier-error"
+                      disabled={isLoading}
                       placeholder={
                         identifierType === "EMAIL"
                           ? "Enter your email"
@@ -408,7 +423,13 @@ export default function LoginPage() {
                     </span>
                   </div>
 
-                  <small className="error-message">{errors.identifier}</small>
+                  <small
+                    id="identifier-error"
+                    className="error-message"
+                    aria-live="polite"
+                  >
+                    {errors.identifier}
+                  </small>
                 </div>
 
                 {/* PASSWORD */}
@@ -429,6 +450,9 @@ export default function LoginPage() {
                       type={showPassword ? "text" : "password"}
                       id="password"
                       name="password"
+                      aria-invalid={Boolean(errors.password)}
+                      aria-describedby="password-error"
+                      disabled={isLoading}
                       placeholder="Enter your password"
                       autoComplete="current-password"
                       value={form.password}
@@ -438,6 +462,8 @@ export default function LoginPage() {
                     <button
                       type="button"
                       className="eye-btn"
+                      aria-pressed={showPassword}
+                      aria-controls="password"
                       aria-label={
                         showPassword ? "Hide password" : "Show password"
                       }
@@ -447,7 +473,13 @@ export default function LoginPage() {
                     </button>
                   </div>
 
-                  <small className="error-message">{errors.password}</small>
+                  <small
+                    id="password-error"
+                    className="error-message"
+                    aria-live="polite"
+                  >
+                    {errors.password}
+                  </small>
                 </div>
 
                 {/* REMEMBER ME */}
@@ -457,6 +489,7 @@ export default function LoginPage() {
                     <input
                       type="checkbox"
                       name="rememberMe"
+                      disabled={isLoading}
                       checked={form.rememberMe}
                       onChange={handleChange}
                     />
@@ -470,7 +503,10 @@ export default function LoginPage() {
                 {/* MESSAGE */}
 
                 {message.text && (
-                  <div className={`login-message ${message.type}`}>
+                  <div
+                    className={`login-message ${message.type}`}
+                    role={message.type === "error" ? "alert" : "status"}
+                  >
                     {message.text}
                   </div>
                 )}
@@ -483,12 +519,14 @@ export default function LoginPage() {
                   className={`login-button ${isLoading ? "loading" : ""}`}
                 >
                   <span className="button-content">
-                    <Lock size={15} />
+                    {isLoading ? (
+                      <span className="loading-spinner" aria-hidden="true" />
+                    ) : (
+                      <Lock size={15} aria-hidden="true" />
+                    )}
 
-                    <span>Log in</span>
+                    <span>{isLoading ? "Signing in..." : "Log in"}</span>
                   </span>
-
-                  <span className="loading-spinner" />
                 </button>
               </form>
 

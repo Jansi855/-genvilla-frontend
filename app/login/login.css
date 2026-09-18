@@ -3168,6 +3168,31 @@ body {
   padding-bottom: 40px;
 }
 
+@media (min-width: 901px) {
+  .premium-login-page {
+    /* Let a tall card expand the document instead of centering overflow. */
+    display: block;
+    height: auto;
+    max-height: none;
+    padding-block: 28px;
+    overflow: visible;
+  }
+
+  .premium-login-page .login-container {
+    height: auto;
+    max-height: none;
+    margin-inline: auto;
+    /* Preserve rounded corners without creating a hidden scroll container. */
+    overflow: clip;
+  }
+
+  .premium-login-page .welcome-section,
+  .premium-login-page .login-form-section {
+    align-items: safe center;
+    overflow: clip;
+  }
+}
+
 .premium-login-page .login-container {
   margin-top: 0;
   margin-bottom: 0;
@@ -3932,4 +3957,167 @@ body {
   .premium-login-page .login-form-section {
     padding: 28px 34px;
   }
+}
+/* Shared interaction polish; retain the existing auth layout and palette. */
+.login-page.auth-polish .login-container {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: authCardEnter 400ms ease-out both;
+}
+.auth-background { animation: authBackgroundEnter 450ms ease-out both; }
+@keyframes authCardEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes authBackgroundEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.login-page.auth-polish .form-section,
+.login-page.auth-polish .form-container,
+.login-page.auth-polish .input-box input { min-width: 0; }
+.login-page.auth-polish .input-box {
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.login-page.auth-polish .input-box:focus-within {
+  transform: none;
+  border-color: #087b5a;
+  box-shadow: 0 0 0 3px rgba(8, 123, 90, 0.09);
+}
+.login-page.auth-polish .email-icon {
+  transition: color 180ms ease;
+}
+.login-page.auth-polish .input-box:focus-within .email-icon { color: #087b5a; }
+.login-page.auth-polish .input-box.error {
+  border-color: #be3545;
+  box-shadow: 0 0 0 3px rgba(190, 53, 69, 0.07);
+}
+.login-page.auth-polish .eye-btn {
+  right: 2px;
+  width: 44px;
+  height: 44px;
+  color: #61766b;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+.login-page.auth-polish .eye-btn:hover,
+.login-page.auth-polish .eye-btn[aria-pressed="true"] {
+  color: #087b5a;
+  background-color: #edf7f2;
+}
+.login-page.auth-polish :is(button, a):focus-visible {
+  outline: 2px solid #087b5a;
+  outline-offset: 3px;
+}
+.login-page.auth-polish .eye-btn:focus-visible { outline-offset: -3px; }
+.login-page.auth-polish .welcome-section a:focus-visible { outline-color: #a4e3ca; }
+.login-page.auth-polish .login-identifier-btn,
+.login-page.auth-polish .account-type-btn {
+  transition: border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease, color 200ms ease;
+}
+.login-page.auth-polish .login-identifier-btn.active {
+  border-color: #087b5a;
+  background: #edf8f2;
+}
+.login-page.auth-polish .account-type-btn.active {
+  border-color: #087b5a;
+  background: #edf8f2;
+}
+.login-page.auth-polish .account-type-btn.active::after { animation: authCheckEnter 200ms ease-out; }
+@keyframes authCheckEnter {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+.login-page.auth-polish .remember-me {
+  position: relative;
+  min-height: 44px;
+}
+/* Keep native checkboxes in the keyboard/accessibility tree. */
+.login-page.auth-polish .remember-me input {
+  display: block;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.login-page.auth-polish .remember-me input:focus-visible + .custom-checkbox {
+  outline: 2px solid #087b5a;
+  outline-offset: 3px;
+}
+.login-page.auth-polish .remember-me input[aria-invalid="true"] + .custom-checkbox { border-color: #be3545; }
+.login-page.auth-polish .custom-checkbox { flex-shrink: 0; }
+.login-page.auth-polish .error-message {
+  min-height: 16px;
+  font-size: 11px;
+  line-height: 16px;
+  color: #b52e3e;
+  overflow-wrap: anywhere;
+}
+.login-page.auth-polish .password-hint {
+  color: #617268;
+  font-size: 11px;
+}
+.login-page.auth-polish .login-message {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d4e7dd;
+  background: #f1f8f4;
+  color: #31594a;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.login-page.auth-polish .login-message.error {
+  border-color: #efd0d4;
+  background: #fff6f7;
+  color: #a72c3a;
+}
+.login-page.auth-polish .login-button {
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+}
+/* Replace the existing sweeping shine with calm feedback. */
+.login-page.auth-polish .login-button::before { content: none; }
+.login-page.auth-polish .login-button:hover,
+.login-page.auth-polish .benefit-card:hover,
+.login-page.auth-polish .account-type-btn:hover { transform: none; }
+.login-page.auth-polish .login-button:active:not(:disabled) { transform: scale(0.98); }
+.login-page.auth-polish .login-button:disabled {
+  transform: none;
+  cursor: wait;
+  filter: none;
+}
+.login-page.auth-polish .login-button.loading .button-content { display: flex; }
+.login-page.auth-polish .loading-spinner { flex-shrink: 0; }
+.login-page.auth-polish .benefit-card {
+  transition: transform 250ms ease, background-color 250ms ease, border-color 250ms ease;
+}
+.login-page.auth-polish .benefit-icon { transition: background-color 250ms ease; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .login-page.auth-polish .login-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.03);
+    box-shadow: 0 14px 30px rgba(8, 124, 91, 0.25);
+  }
+  .login-page.auth-polish .login-button:active:not(:disabled) { transform: scale(0.98); }
+  .login-page.auth-polish .benefit-card:hover {
+    transform: translateY(-2px);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(164, 227, 202, 0.3);
+  }
+  .login-page.auth-polish .benefit-card:hover .benefit-icon { background-color: rgba(19, 211, 155, 0.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-background,
+  .login-page.auth-polish *,
+  .login-page.auth-polish *::before,
+  .login-page.auth-polish *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .login-page.auth-polish .login-button:active:not(:disabled) { transform: none; }
 }

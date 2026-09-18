@@ -2,7 +2,7 @@
 
 import "../login/login.css";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 
 import {
@@ -43,6 +43,7 @@ export default function SignupPage() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const submittingRef = useRef(false);
 
   function handleChange(event) {
     const { name, value, checked, type } = event.target;
@@ -63,7 +64,7 @@ export default function SignupPage() {
     });
   }
 
-  function validateForm() {
+  function validateForm(formElement) {
     const newErrors = {};
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -114,32 +115,37 @@ export default function SignupPage() {
     }
 
     setErrors(newErrors);
+    const firstInvalid = Object.keys(newErrors).find(
+      (field) => newErrors[field],
+    );
+    if (firstInvalid) formElement.elements.namedItem(firstInvalid)?.focus();
 
     return Object.keys(newErrors).length === 0;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submittingRef.current) return;
 
     setMessage({
       text: "",
       type: "",
     });
 
-    if (!validateForm()) {
+    if (!validateForm(event.currentTarget)) {
       return;
     }
 
+    submittingRef.current = true;
     setIsLoading(true);
 
     try {
-      // FRONTEND SIMULATION ONLY
-      // No backend/API call has been added or changed.
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      // Connect the real auth request here when the provider is configured.
+      // Until then, do not simulate a request, session, or successful login.
 
       setMessage({
-        text: "Signup authentication will be connected to GenVilla soon.",
-        type: "success",
+        text: "Registration is not available yet. No account has been created.",
+        type: "info",
       });
     } catch {
       setMessage({
@@ -147,6 +153,7 @@ export default function SignupPage() {
         type: "error",
       });
     } finally {
+      submittingRef.current = false;
       setIsLoading(false);
     }
   }
@@ -154,7 +161,7 @@ export default function SignupPage() {
   return (
     <>
       {/* Background video */}
-      <div className="video-background">
+      <div className="video-background auth-background">
         <video
           autoPlay
           muted
@@ -171,7 +178,7 @@ export default function SignupPage() {
 
       <div className="background-overlay" />
 
-      <main className="login-page signup-page">
+      <main className="login-page signup-page auth-polish">
         <div className="login-container">
           {/* LEFT SIDE */}
           <section className="welcome-section">
@@ -270,7 +277,7 @@ export default function SignupPage() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate aria-busy={isLoading}>
                 {/* FULL NAME */}
                 <div className="input-group">
                   <label htmlFor="name">Full Name</label>
@@ -280,6 +287,9 @@ export default function SignupPage() {
                       type="text"
                       id="name"
                       name="name"
+                      aria-invalid={Boolean(errors.name)}
+                      aria-describedby="name-error"
+                      disabled={isLoading}
                       placeholder="Enter your full name"
                       autoComplete="name"
                       value={form.name}
@@ -291,7 +301,13 @@ export default function SignupPage() {
                     </span>
                   </div>
 
-                  <small className="error-message">{errors.name}</small>
+                  <small
+                    id="name-error"
+                    className="error-message"
+                    aria-live="polite"
+                  >
+                    {errors.name}
+                  </small>
                 </div>
 
                 {/* USERNAME */}
@@ -305,13 +321,17 @@ export default function SignupPage() {
                       type="text"
                       id="username"
                       name="username"
+                      aria-invalid={Boolean(errors.username)}
+                      aria-describedby="username-error"
+                      disabled={isLoading}
                       placeholder="Choose a username"
                       autoComplete="username"
                       value={form.username}
                       onChange={(event) =>
                         handleChange({
                           target: {
-                            ...event.target,
+                            name: "username",
+                            type: "text",
                             value: event.target.value.toLowerCase(),
                           },
                         })
@@ -323,7 +343,13 @@ export default function SignupPage() {
                     </span>
                   </div>
 
-                  <small className="error-message">{errors.username}</small>
+                  <small
+                    id="username-error"
+                    className="error-message"
+                    aria-live="polite"
+                  >
+                    {errors.username}
+                  </small>
                 </div>
 
                 {/* EMAIL */}
@@ -335,13 +361,17 @@ export default function SignupPage() {
                       type="email"
                       id="email"
                       name="email"
+                      aria-invalid={Boolean(errors.email)}
+                      aria-describedby="email-error"
+                      disabled={isLoading}
                       placeholder="Enter your email"
                       autoComplete="email"
                       value={form.email}
                       onChange={(event) =>
                         handleChange({
                           target: {
-                            ...event.target,
+                            name: "email",
+                            type: "email",
                             value: event.target.value.toLowerCase(),
                           },
                         })
@@ -359,7 +389,13 @@ export default function SignupPage() {
                     </span>
                   </div>
 
-                  <small className="error-message">{errors.email}</small>
+                  <small
+                    id="email-error"
+                    className="error-message"
+                    aria-live="polite"
+                  >
+                    {errors.email}
+                  </small>
                 </div>
 
                 {/* PASSWORD */}
@@ -373,6 +409,9 @@ export default function SignupPage() {
                       type={showPassword ? "text" : "password"}
                       id="password"
                       name="password"
+                      aria-invalid={Boolean(errors.password)}
+                      aria-describedby="password-hint password-error"
+                      disabled={isLoading}
                       placeholder="Create a password"
                       autoComplete="new-password"
                       value={form.password}
@@ -382,6 +421,8 @@ export default function SignupPage() {
                     <button
                       type="button"
                       className="eye-btn"
+                      aria-pressed={showPassword}
+                      aria-controls="password"
                       aria-label={
                         showPassword ? "Hide password" : "Show password"
                       }
@@ -391,9 +432,15 @@ export default function SignupPage() {
                     </button>
                   </div>
 
-                  <small className="error-message">{errors.password}</small>
+                  <small
+                    id="password-error"
+                    className="error-message"
+                    aria-live="polite"
+                  >
+                    {errors.password}
+                  </small>
 
-                  <p className="password-hint">
+                  <p id="password-hint" className="password-hint">
                     Use 12–128 characters. Internal spaces are allowed.
                   </p>
                 </div>
@@ -411,6 +458,9 @@ export default function SignupPage() {
                       type={showConfirmPassword ? "text" : "password"}
                       id="confirmPassword"
                       name="confirmPassword"
+                      aria-invalid={Boolean(errors.confirmPassword)}
+                      aria-describedby="confirmPassword-error"
+                      disabled={isLoading}
                       placeholder="Confirm your password"
                       autoComplete="new-password"
                       value={form.confirmPassword}
@@ -420,6 +470,8 @@ export default function SignupPage() {
                     <button
                       type="button"
                       className="eye-btn"
+                      aria-pressed={showConfirmPassword}
+                      aria-controls="confirmPassword"
                       aria-label={
                         showConfirmPassword
                           ? "Hide confirm password"
@@ -435,7 +487,11 @@ export default function SignupPage() {
                     </button>
                   </div>
 
-                  <small className="error-message">
+                  <small
+                    id="confirmPassword-error"
+                    className="error-message"
+                    aria-live="polite"
+                  >
                     {errors.confirmPassword}
                   </small>
                 </div>
@@ -443,15 +499,21 @@ export default function SignupPage() {
                 {/* ACCOUNT TYPE */}
                 <div className="input-group">
                   <div className="account-type-heading">
-                    <label>Account Type</label>
+                    <label id="account-type-label">Account Type</label>
 
                     <span>Choose how you'll use GenVilla</span>
                   </div>
 
-                  <div className="account-type-selector">
+                  <div
+                    className="account-type-selector"
+                    role="group"
+                    aria-labelledby="account-type-label"
+                  >
                     <button
                       type="button"
                       onClick={() => setAccountType("BUYER")}
+                      aria-pressed={accountType === "BUYER"}
+                      disabled={isLoading}
                       className={`account-type-btn ${
                         accountType === "BUYER" ? "active" : ""
                       }`}
@@ -469,6 +531,8 @@ export default function SignupPage() {
                     <button
                       type="button"
                       onClick={() => setAccountType("SELLER")}
+                      aria-pressed={accountType === "SELLER"}
+                      disabled={isLoading}
                       className={`account-type-btn ${
                         accountType === "SELLER" ? "active" : ""
                       }`}
@@ -491,6 +555,9 @@ export default function SignupPage() {
                     <input
                       type="checkbox"
                       name="agree"
+                      aria-invalid={Boolean(errors.agree)}
+                      aria-describedby="agree-error"
+                      disabled={isLoading}
                       checked={form.agree}
                       onChange={handleChange}
                     />
@@ -501,13 +568,20 @@ export default function SignupPage() {
                   </label>
                 </div>
 
-                {errors.agree && (
-                  <small className="error-message">{errors.agree}</small>
-                )}
+                <small
+                  id="agree-error"
+                  className="error-message"
+                  aria-live="polite"
+                >
+                  {errors.agree}
+                </small>
 
                 {/* MESSAGE */}
                 {message.text && (
-                  <div className={`login-message ${message.type}`}>
+                  <div
+                    className={`login-message ${message.type}`}
+                    role={message.type === "error" ? "alert" : "status"}
+                  >
                     {message.text}
                   </div>
                 )}
@@ -519,11 +593,15 @@ export default function SignupPage() {
                   className={`login-button ${isLoading ? "loading" : ""}`}
                 >
                   <span className="button-content">
-                    <Lock size={15} />
-                    <span>Create Account</span>
+                    {isLoading ? (
+                      <span className="loading-spinner" aria-hidden="true" />
+                    ) : (
+                      <Lock size={15} aria-hidden="true" />
+                    )}
+                    <span>
+                      {isLoading ? "Creating account..." : "Create Account"}
+                    </span>
                   </span>
-
-                  <span className="loading-spinner" />
                 </button>
               </form>
 
