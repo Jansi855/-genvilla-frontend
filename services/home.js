@@ -1,6 +1,7 @@
 import { insights, schemes } from "@/data/home";
 
-export async function getHomeData(city) {
+
+export async function getHomeData(city, purpose = "Buy") {
   const cityMap = {
     Gurugram: "Gurgaon",
     Ghaziabad: "Ghaziabad",
@@ -20,6 +21,7 @@ export async function getHomeData(city) {
   if (apiCity) {
     params.set("city", apiCity);
   }
+  params.set("transaction_type", purpose);
 
   try {
     const response = await fetch(
@@ -44,7 +46,8 @@ export async function getHomeData(city) {
       const priceValue = property.price_paise
         ? property.price_paise / 100
         : 0;
-
+        
+      console.log("PROPERTY:", property.id, property.transaction_type);
       return {
         id: property.id,
 
@@ -108,13 +111,8 @@ export async function getHomeData(city) {
     };
   } catch (error) {
     console.error("Home API Error:", error);
-
-    return {
-      featuredProperties: [],
-      insights,
-      schemes,
-      demo: false,
-    };
+    // Let the existing query error state and retry callback handle failures.
+    throw error;
   }
 }
 

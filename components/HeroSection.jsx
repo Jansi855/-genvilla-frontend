@@ -1,55 +1,97 @@
 "use client";
 import { assetUrl } from "@/lib/assets";
 
+import HeroPropertyCard from "@/components/HeroPropertyCard";
 import Link from "next/link";
 import HomePropertySearch from "@/components/HomePropertySearch";
-import { useEffect, useState } from "react";
-import { ANALYSIS_KEY, LOCATION_KEY, ANALYSIS_EVENT, parseAnalysis, writeContext } from "@/utils/latestAnalysis";
+import { useEffect, useRef, useState } from "react";
+import {
+  ANALYSIS_KEY,
+  LOCATION_KEY,
+  ANALYSIS_EVENT,
+  parseAnalysis,
+  writeContext,
+} from "@/utils/latestAnalysis";
 import { normalizeCity, getPropertyLocationPath } from "@/utils/location";
 import {
+  ArrowLeft,
   ArrowRight,
   BarChart3,
   Building2,
   Check,
   IndianRupee,
+  Home,
   MapPin,
   ShieldCheck,
   Sparkles,
+  Target,
   WalletCards,
 } from "lucide-react";
 
 const cities = ["Gurugram", "Noida", "Ghaziabad", "Sonipat", "New Delhi"];
+const propertySlideClassName =
+  "w-[82%] shrink-0 snap-start md:w-[44%] xl:w-[30%]";
 
-export default function HeroSection() {
+export default function HeroSection({
+  properties = [],
+  isLoading = false,
+  isError = false,
+  onRetry,
+}) {
+  const [propertyPurpose, setPropertyPurpose] = useState("Buy");
+
+  const filteredProperties = properties.filter(
+    (property) => property.purpose === propertyPurpose,
+  );
+  const carouselRef = useRef(null);
+  const scrollProperties = (direction) => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    const cardWidth =
+      carousel.firstElementChild?.getBoundingClientRect().width || 270;
+    const gap =
+      Number.parseFloat(window.getComputedStyle(carousel).columnGap) || 0;
+    carousel.scrollBy({
+      left: direction * (cardWidth + gap),
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
+  };
   const [analysis, setAnalysis] = useState(null);
-  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedCity, setSelectedCity] = useState("");
   useEffect(() => {
     const read = () => {
       try {
         setAnalysis(parseAnalysis(window.localStorage.getItem(ANALYSIS_KEY)));
-        const context = JSON.parse(window.localStorage.getItem(LOCATION_KEY) || 'null');
+        const context = JSON.parse(
+          window.localStorage.getItem(LOCATION_KEY) || "null",
+        );
         setSelectedCity(normalizeCity(context?.city));
-      } catch { setAnalysis(null); setSelectedCity(''); }
+      } catch {
+        setAnalysis(null);
+        setSelectedCity("");
+      }
     };
     read();
-    window.addEventListener('storage', read);
+    window.addEventListener("storage", read);
     window.addEventListener(ANALYSIS_EVENT, read);
-    window.addEventListener('pageshow', read);
+    window.addEventListener("pageshow", read);
     return () => {
-      window.removeEventListener('storage', read);
+      window.removeEventListener("storage", read);
       window.removeEventListener(ANALYSIS_EVENT, read);
-      window.removeEventListener('pageshow', read);
+      window.removeEventListener("pageshow", read);
     };
   }, []);
   const metrics = analysis?.metrics;
-  const unavailable = 'Not enough data';
+  const unavailable = "Not enough data";
   return (
     <section className="relative isolate">
       {/* =====================================================
           BACKGROUND VIDEO
       ====================================================== */}
       <video
-        poster={assetUrl("/hero/property-lifestyle.png")}
+        poster={assetUrl("/hero/property-amenities.jpg")}
         autoPlay
         muted
         loop
@@ -99,20 +141,26 @@ export default function HeroSection() {
       ====================================================== */}
       <div
         className="
-          relative
-          z-10
-          mx-auto
-          grid
-          max-w-[1450px]
-          items-center
-          gap-8
-          px-6
-          pb-12
-          pt-10
-          lg:grid-cols-[1.15fr_1fr]
-          lg:px-10
-          xl:gap-12
-        "
+    relative
+    z-10
+    mx-auto
+    grid
+    w-full
+    max-w-[1450px]
+    grid-cols-1
+    items-center
+    gap-7
+    px-4
+    pb-5
+    pt-5
+    sm:px-6
+    sm:pt-6
+    lg:grid-cols-[1.15fr_1fr]
+    lg:gap-8
+    lg:px-10
+    lg:pt-7
+    xl:gap-10
+  "
       >
         {/* ===================================================
             LEFT CONTENT
@@ -121,7 +169,7 @@ export default function HeroSection() {
           {/* TOP BADGE */}
           <div
             className="
-              mb-7
+              mb-4
               inline-flex
               items-center
               gap-2
@@ -130,7 +178,7 @@ export default function HeroSection() {
               border-white/20
               bg-black/20
               px-4
-              py-2.5
+              py-2
               backdrop-blur-md
               transition-all
               duration-300
@@ -156,16 +204,17 @@ export default function HeroSection() {
           {/* HEADING */}
           <h1
             className="
-              max-w-[650px]
-              font-serif
-              text-[36px]
-              leading-[1.08]
-              tracking-[-0.035em]
-              text-white
-              sm:text-[44px]
-              lg:text-[48px]
-              xl:text-[54px]
-            "
+  max-w-[650px]
+  font-serif
+  text-[34px]
+  leading-[1.05]
+  tracking-[-0.035em]
+  text-white
+  sm:text-[40px]
+  md:text-[44px]
+  lg:text-[46px]
+  xl:text-[50px]
+"
           >
             Find the right property.
             <span className="mt-2 block text-[#a4e3ca]">
@@ -176,12 +225,13 @@ export default function HeroSection() {
           {/* DESCRIPTION */}
           <p
             className="
-              mt-5
-              max-w-[620px]
-              text-[16px]
-              leading-7
-              text-white/80
-            "
+  mt-4
+  max-w-[600px]
+  text-[14px]
+  leading-6
+  text-white/80
+  sm:text-[15px]
+"
           >
             Explore homes across Gurugram, Ghaziabad, Sonipat, Noida and New
             Delhi—then understand what each property really means for your
@@ -189,7 +239,7 @@ export default function HeroSection() {
           </p>
 
           {/* BUTTONS */}
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href="#hero-property-search"
               className="
@@ -229,6 +279,8 @@ export default function HeroSection() {
             <Link
               href="/smart-recommendation"
               className="
+              w-full
+sm:w-auto
                 group
                 inline-flex
                 items-center
@@ -280,490 +332,226 @@ export default function HeroSection() {
           {/* =================================================
               MAIN ANALYSIS CARD
           ================================================== */}
-          <div
-            className="
-              group
-              relative
-              overflow-hidden
-              rounded-[30px]
-              border
-              border-white/25
-              bg-[#071f1b]/90
-              p-6
-              shadow-[0_35px_90px_rgba(0,0,0,0.40)]
-              backdrop-blur-xl
-              transition-all
-              duration-500
-              hover:-translate-y-1
-              hover:border-[#4bdca7]/35
-              hover:shadow-[0_40px_100px_rgba(0,0,0,0.48)]
-              sm:p-7
-            "
-          >
-            {/* GREEN GLOW */}
+          <div className="relative flex items-center justify-center lg:justify-end">
             <div
               className="
-                pointer-events-none
-                absolute
-                -right-20
-                -top-20
-                h-[230px]
-                w-[230px]
-                rounded-full
-                bg-[#24d496]/10
-                blur-[80px]
-              "
-            />
-
-            {/* HEADER */}
-            <div
-              className="
-                relative
-                flex
-                items-start
-               justify-start
-                gap-5
-              "
-            >
-              <div className="flex items-start gap-2">
-                <div
-                  className="
-                    flex
-                    h-12
-                    w-12
-                    shrink-0
-                    items-center
-                    justify-center
-                    rounded-full
-                    border
-                    border-[#47dea9]/30
-                    bg-[#0c3a31]
-                    text-[#77e2b8]
-                    transition-all
-                    duration-300
-                    group-hover:rotate-6
-                    group-hover:scale-105
-                  "
-                >
-                  <Sparkles size={20} />
-                </div>
-
-                <div>
-                  <h2
-                    className="
-                      text-[20px]
-                      font-bold
-                      text-white
-                    "
-                  >
-                    GenVilla Analysis
-                  </h2>
-
-                  <p
-                    className="
-                      mt-1
-                      text-[12px]
-                      text-white/50
-                    "
-                  >
-                    {analysis ? `Latest completed analysis: ${[analysis.property.locality, analysis.property.city].filter(Boolean).join(', ')}` : 'Analyze a property to see affordability, EMI, rental yield and risk insights.'}
-                  </p>
-                </div>
-              </div>
-
-              {/* INVESTMENT SCORE */}
-              {analysis && <div
-                className="
-    hidden
-    min-w-[165px]
-    shrink-0
-    rounded-[18px]
-    border
-    border-[#4be0a9]/55
-    bg-[#07503e]/95
-    px-4
-    py-3
-    text-white
-    shadow-[0_12px_30px_rgba(0,0,0,0.25)]
-    backdrop-blur-xl
-    transition-all
-    duration-300
-    hover:-translate-y-1
-    hover:border-[#62e8b7]
-    xl:block
-  "
-              >
-                <div
-                  className="
-      flex
-      items-center
-      gap-2
-      text-[9px]
-      font-semibold
-      uppercase
-      tracking-[0.08em]
-      text-white/70
+      w-full
+      max-w-[470px]
+      rounded-[28px]
+      border
+      border-[#25c995]/40
+      bg-[#062c26]/95
+      p-6
+      text-white
+      shadow-[0_25px_70px_rgba(0,0,0,0.35)]
+      backdrop-blur-xl
+      sm:p-7
     "
-                >
-                  <BarChart3 size={13} className="text-[#8ae7c2]" />
-                  Investment Score
-                </div>
-
-                <div className="mt-2 flex items-end gap-1">
-                  <span className={metrics.investment === null ? 'text-sm font-bold' : 'text-[30px] font-bold leading-none'}>
-                    {metrics.investment === null ? unavailable : (metrics.investment / 10).toFixed(1)}
-                  </span>
-
-                  <span className="mb-1 text-[10px] font-semibold text-white/55">
-                    {metrics.investment !== null ? '/10' : ''}
-                  </span>
-                </div>
-
-              </div>}
-              {/* CHECK */}
-              {analysis && <div
-                className="
-                  flex
-                  h-12
-                  w-12
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-[#e9fff6]
-                  text-[#07885e]
-                  shadow-lg
-                  transition-all
-                  duration-300
-                  hover:rotate-6
-                  hover:scale-110
-                "
-              >
-                <Check size={22} />
-              </div>}
-            </div>
-
-            {/* ===============================================
-                METRICS
-            ================================================ */}
-            {analysis && <div className="relative mt-7 space-y-3">
-              <MetricCard
-                icon={WalletCards}
-                title="Affordability"
-                subtitle="How easily this fits your budget"
-                value={metrics.affordability === null ? unavailable : `${metrics.affordability}/100`}
-                progress={metrics.affordability ?? undefined}
-              />
-
-              <MetricCard
-                icon={Building2}
-                title="Rental Yield"
-                subtitle="Estimated annual rental return"
-                value={metrics.rentalYield === null ? unavailable : `${metrics.rentalYield.toFixed(2)}%`}
-              />
-
-              <MetricCard
-                icon={ShieldCheck}
-                title="Risk Level"
-                subtitle="Overall property risk assessment"
-                value={metrics.risk || unavailable}
-              />
-
-              <MetricCard
-                icon={IndianRupee}
-                title="Estimated EMI"
-                subtitle="Estimated monthly loan payment"
-                value={metrics.emi === null ? unavailable : `₹${Math.round(metrics.emi).toLocaleString('en-IN')}`}
-                extra={metrics.emi === null ? undefined : '/ month'}
-              />
-            </div>}
-
-            {/* ===============================================
-                RECOMMENDATION
-            ================================================ */}
-            {analysis && <button type="button" className="relative mt-4 text-sm text-white/70 underline hover:text-white" onClick={() => { writeContext(ANALYSIS_KEY, null); setAnalysis(null); }}>Clear latest analysis</button>}
-            {!analysis && selectedCity && <Link className="relative mt-5 inline-block text-sm font-semibold text-white underline" href={`/smart-recommendation?city=${encodeURIComponent(selectedCity)}`}>Get Smart Recommendations</Link>}
-            <div
-              className="
-                relative
-                mt-6
-                border-t
-                border-white/15
-                pt-6
-              "
             >
-              <div
-                className="
-                  flex
-                  flex-col
-                  gap-5
-                  sm:flex-row
-                  sm:items-end
-                  sm:justify-between
-                "
-              >
-                <div>
-                  <p
-                    className="
-                      text-[11px]
-                      font-medium
-                      uppercase
-                      tracking-[0.12em]
-                      text-white/45
-                    "
-                  >
-                    {analysis ? 'Your saved analysis' : selectedCity ? 'Your selected market' : 'Start your analysis'}
-                  </p>
-
-                  <div
-                    className="
-                      mt-2
-                      flex
-                      items-center
-                      gap-3
-                    "
-                  >
-                    {analysis && <span
-                      className="
-                        h-3
-                        w-3
-                        animate-pulse
-                        rounded-full
-                        bg-[#32d99b]
-                        shadow-[0_0_12px_rgba(50,217,155,0.8)]
-                      "
-                    />}
-
-                    <h3
-                      className="
-                        text-[30px]
-                        font-bold
-                        text-[#32d99b]
-                      "
-                    >
-                      {analysis ? 'Analysis complete' : selectedCity ? `Explore properties in ${selectedCity}` : 'Analyze a Property'}
-                    </h3>
-                  </div>
-
-                  <p
-                    className="
-                      mt-2
-                      max-w-[270px]
-                      text-[12px]
-                      leading-5
-                      text-white/50
-                    "
-                  >
-                    {analysis ? 'Estimates based on the inputs you submitted.' : 'Choose a property and review its financial assumptions to get personalized insights.'}
-                  </p>
+              {/* Header */}
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29d9a2]/50 bg-[#063c32]">
+                  <Sparkles size={22} className="text-[#36e0aa]" />
                 </div>
 
-                <Link
-                  href={selectedCity && !analysis ? getPropertyLocationPath({city: selectedCity}) : '/calculators/smart-property-analyzer'}
-                  className="
-                    group/button
-                    inline-flex
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-full
-                    bg-[#07885e]
-                    px-6
-                    py-3
-                    text-sm
-                    font-semibold
-                    text-white
-                    shadow-[0_12px_30px_rgba(7,136,94,0.25)]
-                    transition-all
-                    duration-300
-                    hover:-translate-y-1
-                    hover:bg-[#0a9c6c]
-                    hover:shadow-[0_16px_35px_rgba(7,136,94,0.35)]
-                  "
-                >
-                  {selectedCity && !analysis ? 'Explore properties' : 'Analyze a Property'}
-                  <ArrowRight
-                    size={15}
-                    className="
-                      transition-transform
-                      duration-300
-                      group-hover/button:translate-x-1
-                    "
-                  />
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* =================================================
-              VERIFIED BADGE
-          ================================================== */}
-          <div
-            className="
-              absolute
-              -bottom-9
-              right-5
-              z-20
-              hidden
-              items-center
-              gap-3
-              rounded-2xl
-              border
-              border-white/70
-              bg-white/95
-              px-5
-              py-4
-              shadow-[0_18px_45px_rgba(0,0,0,0.28)]
-              backdrop-blur-lg
-              transition-all
-              duration-300
-              hover:-translate-y-1
-              hover:scale-[1.03]
-              md:flex
-            "
-          >
-            <div
-              className="
-                flex
-                h-11
-                w-11
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                bg-[#e0f8ee]
-                text-[#07885e]
-              "
-            >
-              <ShieldCheck size={20} />
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2">
-                <p
-                  className="
-                    text-[13px]
-                    font-bold
-                    text-[#17231f]
-                  "
-                >
-                  Verified Data
-                </p>
-
-                <span
-                  className="
-                    h-2
-                    w-2
-                    animate-pulse
-                    rounded-full
-                    bg-[#22cc8d]
-                  "
-                />
+                <h3 className="text-xl font-bold sm:text-2xl">
+                  GenVilla Analysis
+                </h3>
               </div>
 
-              <p
+              {/* Insights */}
+              <div className="mt-7 grid grid-cols-2 gap-x-6 gap-y-6">
+                <div className="flex items-center gap-3">
+                  <BarChart3 size={23} className="text-[#36e0aa]" />
+                  <span className="text-sm font-medium">Affordability</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Home size={23} className="text-[#36e0aa]" />
+                  <span className="text-sm font-medium">Rental Yield</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <ShieldCheck size={23} className="text-[#36e0aa]" />
+                  <span className="text-sm font-medium">Risk Insights</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Target size={23} className="text-[#36e0aa]" />
+                  <span className="text-sm font-medium">Personalized View</span>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <Link
+                href="/smart-recommendation"
                 className="
-                  mt-1
-                  text-[10px]
-                  text-[#6d7772]
-                "
+        mt-7
+        flex
+        w-full
+        items-center
+        justify-center
+        gap-3
+        rounded-2xl
+        bg-[#08a878]
+        px-5
+        py-4
+        text-sm
+        font-bold
+        text-white
+        transition-all
+        duration-300
+        hover:-translate-y-0.5
+        hover:bg-[#0abb87]
+      "
               >
-                Updated property insights
-              </p>
+                Analyze a Property
+                <ArrowRight size={18} />
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="relative z-30 mx-auto max-w-[1450px] px-4 pb-5 sm:px-6 lg:px-10">
-        <HomePropertySearch />
-      </div>
-
-      {/* =====================================================
-          CITY BAR
-      ====================================================== */}
       <div
         className="
-          relative
-          z-10
-          mx-auto
-          max-w-[1450px]
-          px-6
-          pb-8
-          lg:px-10
-        "
+    relative
+    z-30
+    mx-auto
+    -mt-1
+    w-full
+    max-w-[1450px]
+    px-4
+    pb-4
+    sm:px-6
+    lg:px-10
+  "
       >
-        <div
-          className="
-            grid
-            overflow-hidden
-            rounded-2xl
-            border
-            border-white/15
-            bg-[#041914]/75
-            shadow-[0_15px_40px_rgba(0,0,0,0.20)]
-            backdrop-blur-xl
-            sm:grid-cols-2
-            lg:grid-cols-5
-          "
+        <HomePropertySearch onPurposeChange={setPropertyPurpose} />
+      </div>
+      {/* POPULAR PROPERTIES */}
+      <div className="relative z-10 mx-auto w-full max-w-[1450px] px-4 pb-5 sm:px-6 lg:px-10">
+        <section
+          aria-labelledby="hero-popular-properties-title"
+          aria-busy={isLoading}
+          className="w-full rounded-[24px] border border-[#20c997]/30 bg-[#062f27]/85 p-3.5 shadow-[0_18px_50px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-4 lg:p-5"
         >
-          {cities.map((city) => (
-            <Link
-              key={city}
-              href={getPropertyLocationPath({ city })}
-              className="
-                group/city
-                flex
-                items-center
-                gap-3
-                border-b
-                border-white/10
-                px-5
-                py-4
-                transition-all
-                duration-300
-                hover:bg-white/10
-                sm:border-r
-                lg:border-b-0
-                last:border-r-0
-              "
-            >
-              <div
-                className="
-                  flex
-                  h-9
-                  w-9
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-white/10
-                  text-[#8ce2c0]
-                  transition-all
-                  duration-300
-                  group-hover/city:-translate-y-1
-                  group-hover/city:scale-110
-                  group-hover/city:bg-[#0b5943]
-                "
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <div>
+              <h2
+                id="hero-popular-properties-title"
+                className="text-base font-bold text-white sm:text-lg"
               >
-                <MapPin size={16} />
+                Popular Properties
+              </h2>
+              <p className="mt-0.5 text-[11px] text-white/65">
+                Handpicked properties for you
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/properties"
+                className="flex min-h-9 items-center gap-1.5 text-[11px] font-semibold text-[#b6f2da] transition-colors hover:text-white focus-visible:outline-white"
+              >
+                View All Properties
+                <ArrowRight size={13} aria-hidden="true" />
+              </Link>
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  aria-label="Previous properties"
+                  aria-controls="hero-property-carousel"
+                  disabled={isLoading || isError || !properties.length}
+                  onClick={() => scrollProperties(-1)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-colors hover:bg-white/15 focus-visible:outline-white disabled:cursor-default disabled:opacity-35"
+                >
+                  <ArrowLeft size={16} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next properties"
+                  aria-controls="hero-property-carousel"
+                  disabled={isLoading || isError || !properties.length}
+                  onClick={() => scrollProperties(1)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-colors hover:bg-white/15 focus-visible:outline-white disabled:cursor-default disabled:opacity-35"
+                >
+                  <ArrowRight size={16} aria-hidden="true" />
+                </button>
               </div>
-
-              <span
-                className="
-                  text-[12px]
-                  font-semibold
-                  text-white
-                  transition-colors
-                  duration-300
-                  group-hover/city:text-[#9de4c7]
-                "
+            </div>
+          </div>
+          {isLoading ? (
+            <div role="status">
+              <span className="sr-only">Loading properties…</span>
+              <div
+                aria-hidden="true"
+                className="flex gap-3 overflow-hidden py-1"
               >
-                {city}
-              </span>
-            </Link>
-          ))}
-        </div>
+                {Array.from({ length: 4 }, (_, index) => (
+                  <div
+                    key={index}
+                    className={`${propertySlideClassName} overflow-hidden rounded-2xl border border-white/15 bg-[#f7faf8] motion-safe:animate-pulse`}
+                  >
+                    <div className="h-[200px] bg-sage md:h-[210px]" />
+                    <div className="p-3">
+                      <div className="h-6 w-2/5 rounded bg-sage" />
+                      <div className="mt-1 h-5 w-4/5 rounded bg-sage" />
+                      <div className="mt-1 h-4 w-3/5 rounded bg-sage" />
+                      <div className="mt-2 flex justify-between border-t border-ink/10 pt-2">
+                        <div className="h-4 w-1/3 rounded bg-sage" />
+                        <div className="h-4 w-1/4 rounded bg-sage" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : isError || !properties.length ? (
+            <div
+              role="status"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-6 text-center text-sm text-white/75"
+            >
+              <p>
+                {isError
+                  ? "We couldn't load properties"
+                  : "No properties available right now. Explore all properties for more options."}
+              </p>
+              {isError && onRetry && (
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className="mt-3 rounded-full border border-white/25 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10 focus-visible:outline-white"
+                >
+                  Try Again
+                </button>
+              )}
+            </div>
+          ) : (
+            <ul
+              id="hero-property-carousel"
+              ref={carouselRef}
+              aria-label="Popular properties"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.target !== event.currentTarget) return;
+                if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                  event.preventDefault();
+                  scrollProperties(event.key === "ArrowLeft" ? -1 : 1);
+                }
+              }}
+              className="flex snap-x snap-mandatory scroll-smooth gap-3 overflow-x-auto overscroll-x-contain rounded-2xl py-1 motion-reduce:scroll-auto [scrollbar-width:none] focus-visible:outline-white [&::-webkit-scrollbar]:hidden"
+            >
+              {filteredProperties.map((property) => (
+                <li
+                  key={property.id || property.slug}
+                  className={propertySlideClassName}
+                >
+                  <HeroPropertyCard property={property} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </section>
   );

@@ -1,30 +1,29 @@
 "use client";
 import { assetUrl } from "@/lib/assets";
+import { useState } from "react";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as Icons from "lucide-react";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
-import PropertyCard from "@/components/PropertyCard";
 import RecommendationPreview from "@/components/RecommendationPreview";
 
 import { getHomeData } from "@/services/home";
 import { cities, tools } from "@/data/home";
-import { getPropertyLocationPath } from "@/utils/location";
 
 export default function HomePage() {
-  const [city, setCity] = useState(cities[0]);
+  const city = cities[0];
+  const [purpose, setPurpose] = useState("Buy");
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["home", city],
-    queryFn: () => getHomeData(city),
-  });
+  queryKey: ["home", city, purpose],
+  queryFn: () => getHomeData(city, purpose),
+});
 
-  const visible = data?.featuredProperties?.slice(0, 3) || [];
+  const visible = data?.featuredProperties || [];
 
   return (
     <>
@@ -35,145 +34,19 @@ export default function HomePage() {
             HERO SECTION
         ========================= */}
 
-        <HeroSection />
-
-        <section className="bg-[#fbfcf9] px-5 pb-8 lg:px-10" aria-labelledby="explore-by-city">
-          <div className="mx-auto max-w-[1280px] rounded-[24px] border border-[#173c30]/10 bg-white px-5 py-5 shadow-sm">
-            <h2 id="explore-by-city" className="font-serif text-2xl text-[#10241e]">Explore properties by city</h2>
-            <div className="mt-4 flex flex-wrap gap-3">
-              {cities.map((cityName) => (
-                <Link className="rounded-full border border-[#173c30]/10 bg-[#f4f1e9] px-4 py-2 text-sm font-bold text-[#173c30]/70 transition hover:border-[#08785a] hover:text-[#08785a]" href={getPropertyLocationPath({city:cityName})} key={cityName}>
-                  {cityName}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
+        <HeroSection
+          properties={visible}
+          isLoading={isLoading}
+          isError={isError}
+          onRetry={refetch}
+        />
         {/* =========================
             EXPLORE PROPERTIES
         ========================= */}
 
-        <Section className="relative overflow-hidden bg-[#fbfcf9]">
-          {/* Decorative dots */}
-          <div
-            className="pointer-events-none absolute right-[14%] top-20 hidden h-24 w-24 opacity-30 lg:block"
-            style={{
-              backgroundImage:
-                "radial-gradient(#0b7657 1.3px, transparent 1.3px)",
-              backgroundSize: "12px 12px",
-            }}
-          />
-
-          {/* Section Header */}
-          <div className="mb-10 flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#70ac8f]" />
-
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#08785a]">
-                  Curated For You
-                </p>
-              </div>
-
-              <h2 className="mt-4 font-serif text-[46px] leading-[0.95] tracking-[-0.035em] text-[#10241e] sm:text-[56px] lg:text-[64px]">
-                Explore properties
-              </h2>
-
-              <p className="mt-4 text-[15px] text-[#77817e]">
-                Shortlist homes with the essential numbers already in view.
-              </p>
-            </div>
-
-            <Link
-              href="/properties"
-              className="group inline-flex items-center gap-2 text-sm font-bold text-[#08785a] transition-all duration-300 hover:-translate-y-0.5"
-            >
-              See all properties
-              <Icons.ArrowUpRight
-                size={16}
-                className="transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
-              />
-            </Link>
-          </div>
-
-          {/* City Filters */}
-          <div className="mb-10 flex flex-wrap items-center gap-3">
-            {cities.map((cityName) => (
-              <button
-                key={cityName}
-                type="button"
-                onClick={() => setCity(cityName)}
-                className={`group inline-flex items-center gap-2.5 rounded-full border px-5 py-3 text-[13px] font-semibold shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-[0.97] ${
-                  city === cityName
-                    ? "border-[#08785a] bg-[#08785a] text-white shadow-[0_10px_25px_rgba(8,120,90,0.20)]"
-                    : "border-[#142a21]/8 bg-white text-[#4e5b56] hover:border-[#08785a]/20 hover:text-[#08785a]"
-                }`}
-              >
-                <Icons.MapPin
-                  size={15}
-                  className="transition-transform duration-300 group-hover:scale-110"
-                />
-
-                {cityName}
-              </button>
-            ))}
-          </div>
-
-          {/* Properties */}
-          {isLoading ? (
-            <Skeleton />
-          ) : isError ? (
-            <State
-              title="We couldn’t load properties"
-              action="Try again"
-              onClick={refetch}
-            />
-          ) : visible.length ? (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {visible.map((property, index) => (
-                <div
-                  key={property.id}
-                  className="property-card-reveal"
-                  style={{
-                    animationDelay: `${index * 120}ms`,
-                  }}
-                >
-                  <PropertyCard property={property} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <State
-              title={`No properties found in ${city}`}
-              action="Explore all"
-              href="/properties"
-            />
-          )}
-
-          {/* Carousel dots */}
-          {visible.length > 0 && (
-            <div className="mt-7 flex items-center justify-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#d5ddd9]" />
-              <span className="h-2 w-6 rounded-full bg-[#08785a]" />
-              <span className="h-2 w-2 rounded-full bg-[#d5ddd9]" />
-            </div>
-          )}
-
-          {/* Demo warning */}
-          {data?.demo && (
-            <div className="mt-7 flex items-center gap-2 text-[11px] text-[#8a9490]">
-              <Icons.Info size={15} />
-
-              <p>
-                Preview listings shown for product demonstration. Availability
-                and prices are illustrative.
-              </p>
-            </div>
-          )}
-
+        <Section className="relative overflow-hidden bg-[#fbfcf9] !pt-6">
           {/* Smart Recommendation CTA */}
-          <div className="group relative mt-10 overflow-hidden rounded-[26px] border border-[#08785a]/10 bg-gradient-to-r from-[#edf8f3] via-[#f8fbf8] to-[#eef7f1] px-6 py-7 shadow-[0_10px_35px_rgba(12,71,53,0.05)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(12,71,53,0.10)] md:px-8">
+          <div className="group relative overflow-hidden rounded-[26px] border border-[#08785a]/10 bg-gradient-to-r from-[#edf8f3] via-[#f8fbf8] to-[#eef7f1] px-6 py-7 shadow-[0_10px_35px_rgba(12,71,53,0.05)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(12,71,53,0.10)] md:px-8">
             {/* Background Glow */}
             <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#70d0a8]/15 blur-[60px] transition-all duration-700 group-hover:scale-125" />
 
@@ -1727,45 +1600,6 @@ function SectionHead({ eyebrow, title, text, action }) {
           <Icons.ArrowUpRight size={16} />
         </Link>
       )}
-    </div>
-  );
-}
-
-/* =========================================================
-   PROPERTY LOADING SKELETON
-========================================================= */
-
-function Skeleton() {
-  return (
-    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {[1, 2, 3].map((item) => (
-        <div
-          key={item}
-          className="h-[460px] animate-pulse rounded-[24px] bg-cream"
-        />
-      ))}
-    </div>
-  );
-}
-
-/* =========================================================
-   EMPTY / ERROR STATE
-========================================================= */
-
-function State({ title, action, onClick, href }) {
-  return (
-    <div className="rounded-3xl border border-dashed border-ink/20 p-12 text-center">
-      <h3 className="font-serif text-2xl">{title}</h3>
-
-      {action && href ? (
-        <Link href={href} className="btn-outline mt-5">
-          {action}
-        </Link>
-      ) : action ? (
-        <button type="button" className="btn-outline mt-5" onClick={onClick}>
-          {action}
-        </button>
-      ) : null}
     </div>
   );
 }
