@@ -1,6 +1,7 @@
 "use client";
 import { assetUrl } from "@/lib/assets";
 
+
 import HeroPropertyCard from "@/components/HeroPropertyCard";
 import Link from "next/link";
 import HomePropertySearch from "@/components/HomePropertySearch";

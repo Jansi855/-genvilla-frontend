@@ -10,6 +10,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import RecommendationPreview from "@/components/RecommendationPreview";
+import PropertyJourneySection from "@/components/PropertyJourneySection";
 
 import { getHomeData } from "@/services/home";
 import { cities, tools } from "@/data/home";
@@ -44,7 +45,7 @@ export default function HomePage() {
             EXPLORE PROPERTIES
         ========================= */}
 
-        <Section className="relative overflow-hidden bg-[#fbfcf9] !pt-6">
+        <Section className="relative overflow-hidden bg-[#fbfcf9] !pt-4 !pb-4">
           {/* Smart Recommendation CTA */}
           <div className="group relative overflow-hidden rounded-[26px] border border-[#08785a]/10 bg-gradient-to-r from-[#edf8f3] via-[#f8fbf8] to-[#eef7f1] px-6 py-7 shadow-[0_10px_35px_rgba(12,71,53,0.05)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(12,71,53,0.10)] md:px-8">
             {/* Background Glow */}
@@ -84,105 +85,36 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+          <PropertyJourneySection />
         </Section>
 
         {/* =========================
             SMART DECISION
         ========================= */}
 
-        <Section className="bg-cream !pb-10">
-          <div className="grid items-start gap-12 lg:grid-cols-[.72fr_1.28fr]">
-            <div className="lg:sticky lg:top-28">
-              <p className="eyebrow">DECIDE WITH CONTEXT</p>
-
-              <h2 className="section-title mt-4">
-                Your property.
-                <br />
-                Your finances.
-                <br />
-                <em>Your decision.</em>
-              </h2>
-
-              <p className="mt-6 max-w-md leading-7 text-ink/60">
-                We bring the price, total cost, EMI, rental potential and risk
-                into one clear view—then explain what points toward buy, wait or
-                avoid.
-              </p>
-              {/* Decision badges */}
-              <div className="mt-8 flex flex-wrap gap-4">
-                {/* BUY */}
-                <div className="group flex items-center gap-3 rounded-full border border-emerald-300 bg-emerald-50/80 px-5 py-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                    <Icons.Sparkles size={14} />
-                  </span>
-
-                  <span className="h-5 w-px bg-emerald-300" />
-
-                  <span className="text-xs font-bold tracking-[0.08em] text-emerald-700">
-                    BUY
-                  </span>
-                </div>
-
-                {/* WAIT */}
-                <div className="group flex items-center gap-3 rounded-full border border-amber-300 bg-amber-50/80 px-5 py-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-500">
-                    <Icons.Sparkles size={14} />
-                  </span>
-
-                  <span className="h-5 w-px bg-amber-300" />
-
-                  <span className="text-xs font-bold tracking-[0.08em] text-amber-700">
-                    WAIT
-                  </span>
-                </div>
-
-                {/* AVOID */}
-                <div className="group flex items-center gap-3 rounded-full border border-red-300 bg-red-50/80 px-5 py-2.5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-500">
-                    <Icons.Sparkles size={14} />
-                  </span>
-
-                  <span className="h-5 w-px bg-red-300" />
-
-                  <span className="text-xs font-bold tracking-[0.08em] text-red-600">
-                    AVOID
-                  </span>
-                </div>
-              </div>
-
-              {/* Property image */}
-              <div className="group relative mt-10 overflow-hidden rounded-[28px] border border-ink/5 bg-white shadow-[0_15px_40px_rgba(20,50,40,0.08)]">
-                <img
-                  src={assetUrl("/hero/property-lifestyle.png")}
-                  alt="Modern residential property"
-                  className="h-[180px] w-full object-cover object-center opacity-75 transition-all duration-700 group-hover:scale-105 group-hover:opacity-90"
-                />
-
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#f7f4ec] via-[#f7f4ec]/10 to-transparent" />
-
-                <div className="absolute bottom-4 left-4 z-10 rounded-full border border-white/50 bg-white/85 px-4 py-2 text-[11px] font-semibold text-[#315348] shadow-sm backdrop-blur-md">
-                  Smarter property decisions
-                </div>
-              </div>
-            </div>
-
-            <RecommendationPreview />
-          </div>
+        <Section className="bg-cream !py-8 md:!py-10">
+          <RecommendationPreview
+            properties={visible}
+            isLoading={isLoading}
+            isError={isError}
+            onRetry={refetch}
+          />
         </Section>
 
         {/* =========================
             FINANCIAL TOOLS
         ========================= */}
 
-        <Section className="bg-white">
+        <Section className="bg-white !py-10 md:!py-12 lg:!py-16">
           <SectionHead
             eyebrow="FINANCIAL TOOLKIT"
             title="Popular tools"
             text={`Turn a ${city} listing into numbers you can act on.`}
             action={["View all calculators", "/calculators"]}
+            className="!mb-8 [&_.eyebrow]:text-[10px] [&_.section-title]:!text-[36px] sm:[&_.section-title]:!text-[44px] lg:[&_.section-title]:!text-[50px] [&_p:not(.eyebrow)]:text-[13px] md:[&_p:not(.eyebrow)]:text-[14px] [&>a]:text-[13px]"
           />
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-x-4 gap-y-3.5 sm:grid-cols-2 lg:grid-cols-3">
             {tools.map(([icon, title, text, href]) => {
               const Icon = Icons[icon];
 
@@ -229,11 +161,11 @@ export default function HomePage() {
                 <Link
                   key={title}
                   href={href}
-                  className="group relative min-h-[230px] overflow-hidden rounded-[26px] border border-ink/10 bg-white p-6 shadow-[0_8px_30px_rgba(16,39,33,0.05)] transition-all duration-500 hover:-translate-y-2 hover:border-[#16835e]/40 hover:shadow-[0_22px_55px_rgba(16,90,65,0.13)]"
+                  className="group relative min-h-[205px] overflow-hidden rounded-[26px] border border-ink/10 bg-white px-6 py-5 shadow-[0_8px_30px_rgba(16,39,33,0.05)] transition-all duration-500 hover:-translate-y-2 hover:border-[#16835e]/40 hover:shadow-[0_22px_55px_rgba(16,90,65,0.13)]"
                 >
                   {/* Recommended badge */}
                   {title === "Affordability Check" && (
-                    <div className="absolute right-0 top-0 z-20 rounded-bl-[18px] bg-[#08785a] px-5 py-2 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                    <div className="absolute right-0 top-0 z-20 rounded-bl-[18px] bg-[#08785a] px-5 py-1.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
                       Recommended
                     </div>
                   )}
@@ -280,25 +212,25 @@ export default function HomePage() {
                       <div className="pt-1">
                         {category && (
                           <span
-                            className={`mb-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] ${category.className}`}
+                            className={`mb-2.5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em] ${category.className}`}
                           >
                             <Icons.Sparkles size={11} strokeWidth={2.2} />
                             {category.label}
                           </span>
                         )}
 
-                        <b className="block font-serif text-[24px] leading-tight text-[#10241e] transition-colors duration-300 group-hover:text-[#08785a]">
+                        <b className="block font-serif text-[22px] leading-tight text-[#10241e] transition-colors duration-300 group-hover:text-[#08785a]">
                           {title}
                         </b>
 
-                        <p className="mt-3 max-w-[240px] text-[14px] leading-6 text-ink/55">
+                        <p className="mt-2.5 max-w-[240px] text-[13px] leading-[22px] text-ink/55">
                           {text}
                         </p>
                       </div>
                     </div>
 
                     {/* Mini visual */}
-                    <div className="mt-6 h-10">
+                    <div className="mt-5 h-10">
                       {title === "EMI Calculator" && (
                         <div className="flex h-full items-end gap-1.5 opacity-60 transition-all duration-500 group-hover:opacity-100">
                           {[30, 42, 55, 68, 82, 95].map((height, index) => (
@@ -366,8 +298,8 @@ export default function HomePage() {
                       )}
                     </div>
                     {/* Bottom action */}
-                    <div className="mt-auto flex items-center justify-between pt-6">
-                      <span className="inline-flex items-center gap-2 text-[14px] font-bold text-[#08785a]">
+                    <div className="mt-auto flex items-center justify-between pt-5">
+                      <span className="inline-flex items-center gap-2 text-[13px] font-bold text-[#08785a]">
                         Use tool
                         <Icons.ArrowRight
                           size={17}
@@ -1580,9 +1512,9 @@ function Section({ children, className = "" }) {
    SECTION HEADING
 ========================================================= */
 
-function SectionHead({ eyebrow, title, text, action }) {
+function SectionHead({ eyebrow, title, text, action, className = "" }) {
   return (
-    <div className="mb-9 flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-end">
+    <div className={`mb-9 flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-end ${className}`}>
       <div>
         <p className="eyebrow">{eyebrow}</p>
 
